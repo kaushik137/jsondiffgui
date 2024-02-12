@@ -32,18 +32,18 @@ THE SOFTWARE.
 /* jshint  undef:true                                  */
 /* jshint  curly:false                                  */
 /* global require:true */
-/* global ViewModel:true, generate_diff:true, get_path_range:true, module:true    */
 /* experimental:  [asyncawait, asyncreqawait]  */
 
 (function(){
 
-const _=require('lodash')
+const _=require('lodash');
+( { get_path_range, generate_diff } = require('./jsonutils.js') );
 
 function LOG() { return ; }
 
 const is_different = r => r.opcodes.some( x=> x!=='equal' && x!=='tree_unequal')
 
-ViewModel = function (json_deltas, toCompact=0) {
+const JsondiffViewModel = function (json_deltas, toCompact=0) {
   this.json_deltas = json_deltas
   this.rowsRepr = generate_diff(json_deltas.left, json_deltas.right, toCompact)
   this.current_selected_index = 0
@@ -51,49 +51,49 @@ ViewModel = function (json_deltas, toCompact=0) {
   return this
 }
 
-ViewModel.prototype._RRPath = function (i)      { return this.rowsRepr[i].linerepr.path   }
+JsondiffViewModel.prototype._RRPath = function (i)      { return this.rowsRepr[i].linerepr.path   }
 
-ViewModel.prototype._RRLen = function (i)       { return this.rowsRepr[i].linerepr.length }
+JsondiffViewModel.prototype._RRLen = function (i)       { return this.rowsRepr[i].linerepr.length }
 
-ViewModel.prototype._RRFind = function (fn, i=0, j=null) {
+JsondiffViewModel.prototype._RRFind = function (fn, i=0, j=null) {
   j = j || this.rowsRepr.length
   var next = this.rowsRepr.slice(i,j).findIndex(fn)
   return (next === -1 ) ? -1 : i+next
 }
 
-ViewModel.prototype._RRFindLastIndex = function (fn, i=0, j=null) {
+JsondiffViewModel.prototype._RRFindLastIndex = function (fn, i=0, j=null) {
   j = j || this.rowsRepr.length
   var next = this.rowsRepr.slice(i,j).findLastIndex(fn)
   return (next === -1 ) ? -1 : i+next
 }
 
-ViewModel.prototype.is_collapsed = function (index) {
+JsondiffViewModel.prototype.is_collapsed = function (index) {
   return this.rowsRepr[index].is_collapsed
 }
 
-ViewModel.prototype.is_ancestor_collapsed = function (index) {
+JsondiffViewModel.prototype.is_ancestor_collapsed = function (index) {
   return this.rowsRepr[index].ancestor_collapsed
 }
 
-ViewModel.prototype.is_hidden = function (index) {
+JsondiffViewModel.prototype.is_hidden = function (index) {
     // or hidden_from_diff due to diff context (in future)
     return this.is_ancestor_collapsed(index)
 }
 
-ViewModel.prototype.is_tree_unequal = function (index) {
+JsondiffViewModel.prototype.is_tree_unequal = function (index) {
   return this.rowsRepr[index].tree_unequal
 }
 
 
-ViewModel.prototype.get_node_range = function (index) {
+JsondiffViewModel.prototype.get_node_range = function (index) {
   return get_path_range(index, this._RRLen(index) )
 }
 
-ViewModel.prototype.get_row_cells = function (index) {
+JsondiffViewModel.prototype.get_row_cells = function (index) {
   return this.rowsRepr[index].cells
 }
 
-ViewModel.prototype.expand_to_node = function (index) {
+JsondiffViewModel.prototype.expand_to_node = function (index) {
   var path = this._RRPath(index)
     const line_matches_path = function (inPath) {
       return ( x => x.linerepr.length>0 && _.isEqual(x.linerepr.path, inPath) )
@@ -117,7 +117,7 @@ ViewModel.prototype.expand_to_node = function (index) {
   return  paths_to_update[0]
 }
 
-ViewModel.prototype.set_collapsedtext = function (index, objIndex, toCollapse) {
+JsondiffViewModel.prototype.set_collapsedtext = function (index, objIndex, toCollapse) {
   var cellIndex = (objIndex*2) + 1
   var celltext = this.rowsRepr[index].cells[cellIndex]
   var replaced_text = celltext
@@ -149,7 +149,7 @@ ViewModel.prototype.set_collapsedtext = function (index, objIndex, toCollapse) {
   this.rowsRepr[index].cells[cellIndex] = replaced_text
 }
 
-ViewModel.prototype.collapse = function (index, toCollapse) {
+JsondiffViewModel.prototype.collapse = function (index, toCollapse) {
   var range = this.get_node_range(index)
   var startIndex = range[0], endIndex = range[1]
 
@@ -184,7 +184,7 @@ ViewModel.prototype.collapse = function (index, toCollapse) {
   return startIndex
 }
 
-ViewModel.prototype.recursive_collapse = function (rowIndex, toCollapse) {
+JsondiffViewModel.prototype.recursive_collapse = function (rowIndex, toCollapse) {
   var range = this.get_node_range( rowIndex)
   var startIndex = range[0], endIndex = range[1]
 
@@ -205,7 +205,7 @@ ViewModel.prototype.recursive_collapse = function (rowIndex, toCollapse) {
   return startIndex
 }
 
-ViewModel.prototype.prev_diff = function (i) {
+JsondiffViewModel.prototype.prev_diff = function (i) {
   const maxindex = this.rowsRepr.length - 1
   var index = i<=1 ? maxindex : i-1
 
@@ -216,7 +216,7 @@ ViewModel.prototype.prev_diff = function (i) {
   return next
 }
 
-ViewModel.prototype.next_diff = function (i) {
+JsondiffViewModel.prototype.next_diff = function (i) {
   const maxindex = this.rowsRepr.length - 1
   var index = i>=maxindex ? 1 : i+1
 
@@ -228,7 +228,7 @@ ViewModel.prototype.next_diff = function (i) {
   return next
 }
 
-ViewModel.prototype.prev_row = function(rowIndex) {
+JsondiffViewModel.prototype.prev_row = function(rowIndex) {
   if (rowIndex<=1)
     return 1
 
@@ -240,7 +240,7 @@ ViewModel.prototype.prev_row = function(rowIndex) {
   return i
 }
 
-ViewModel.prototype.next_row = function(rowIndex) {
+JsondiffViewModel.prototype.next_row = function(rowIndex) {
   const maxlen = this.rowsRepr.length-1
   if (rowIndex>=maxlen)
     return maxlen
@@ -253,7 +253,7 @@ ViewModel.prototype.next_row = function(rowIndex) {
 
 }
 
-ViewModel.prototype.prev_obj = function(rowIndex) {
+JsondiffViewModel.prototype.prev_obj = function(rowIndex) {
   var len = this._RRLen(rowIndex)
   var path = this._RRPath(rowIndex)
 
@@ -268,7 +268,7 @@ ViewModel.prototype.prev_obj = function(rowIndex) {
   return nextind === -1 ? 1 : nextind
 }
 
-ViewModel.prototype.next_obj = function(rowIndex) {
+JsondiffViewModel.prototype.next_obj = function(rowIndex) {
   var len = this._RRLen(rowIndex)
   var path = this._RRPath(rowIndex)
 
@@ -283,18 +283,18 @@ ViewModel.prototype.next_obj = function(rowIndex) {
 }
 
 
-ViewModel.prototype.obj_open = function(rowIndex) {
+JsondiffViewModel.prototype.obj_open = function(rowIndex) {
   var parent = this._RRPath(rowIndex).slice(0,-1)
   return this._RRFind( x => _.isEqual(x.linerepr.path, parent) )
 }
 
-ViewModel.prototype.obj_close = function(rowIndex) {
+JsondiffViewModel.prototype.obj_close = function(rowIndex) {
   var parent = this._RRPath(rowIndex).slice(0,-1)
   return this._RRFind( x => x.linerepr.length<0 && _.isEqual(x.linerepr.path, parent) )
 }
 
 
-ViewModel.prototype.update_collapsedtext = function (index) {
+JsondiffViewModel.prototype.update_collapsedtext = function (index) {
   var range = this.get_node_range(index)
   var start = range[0], end = range[1]
   for (var i = start; i <= end; i++) {
@@ -310,9 +310,9 @@ ViewModel.prototype.update_collapsedtext = function (index) {
 
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports={ ViewModel };
+  module.exports = JsondiffViewModel;
 } else {   // we're in a browser
-  window.ViewModel = ViewModel
+  window.JsondiffViewModel = JsondiffViewModel;
 }
 
 })();

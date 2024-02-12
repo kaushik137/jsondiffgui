@@ -30,8 +30,7 @@ THE SOFTWARE.
 /* jshint esversion: 6                                  */
 /* jshint  undef:true                                  */
 /* jshint  curly:false                                  */
-/* global require:true */
-/* global module:true, get_path_range:true, generate_diff:true */
+/* global require:true, module:true */
 /* experimental:  [asyncawait, asyncreqawait]  */
 
 
@@ -202,7 +201,7 @@ const get_diffrepr_for_line = function (left, right, linerepr, par_row) {
     return { l : l, r: r, opcodes : opcodes, tree_unequal : tree_unequal, actual_paths: actual_paths }
 }
 
-get_path_range = function (lineIndex, len) {
+const get_path_range = function (lineIndex, len) {
   "use strict";
   if (len === null)
     return [ lineIndex, lineIndex]
@@ -313,7 +312,7 @@ const get_parent_index = function (rows, path) {
 }
 
 
-generate_diff = function (left,right, toCompact=0) { // jshint unused:false
+const generate_diff = function (left,right, toCompact=0) { // jshint unused:false
   var linerepr=null
   var null_row={ linerepr: {path: null, length: null}, cells: [ 0, "", 0, "" ], opcodes: [ "equal", "equal" ] , actual_paths: ["same", "same"], is_collapsed : false, ancestor_collapsed : false }
   var Rows=[ null_row ]
@@ -346,8 +345,6 @@ generate_diff = function (left,right, toCompact=0) { // jshint unused:false
 
   return Rows
 }
-
-
 
 if (typeof module !== 'undefined' && module.exports) {
   module.exports={

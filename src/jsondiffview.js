@@ -34,7 +34,9 @@ THE SOFTWARE.
 
 (function() {
 
-JsondiffView = function () {  }
+jsondiffgui = { version: 1.0  }
+
+let JsondiffView = function () {  }
 
 JsondiffView.prototype.scroll2selection = null
 
@@ -112,7 +114,7 @@ JsondiffView.prototype.jsondiffguiCommands = {
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports={ JsondiffView };
+  module.exports = JsondiffView
 } else {
   window.JsondiffView = JsondiffView
 }

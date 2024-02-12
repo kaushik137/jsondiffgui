@@ -1,0 +1,38 @@
+{
+    "quiz": {
+        "sport": {
+            "q1": {
+                "question": "Which one is correct team name in NBA?",
+                "options": [
+                    "Los Angeles Kings",
+                    "Golden State Warriros",
+                    "New York Bulls",
+                    "Huston airplane"
+                ],
+                "answer": "None of the above"
+            }
+        },
+        "maths": {
+            "q1": {
+                "question": "5 + 8 = ?",
+                "options": [
+                    "10",
+                    "11",
+                    "12",
+                    "13"
+                ],
+                "answer": "13"
+            },
+            "q3": {
+                "question": "12 - 8 = ?",
+                "options": [
+                    "1",
+                    "2",
+                    "3",
+                    "4"
+                ],
+                "answer": "4"
+            }
+        }
+    }
+}

@@ -4,8 +4,7 @@
 jsondiffgui:
 jsondiffgui Copyright (c) 2023 Kaushik Sundararajan
 https://github.com/kaushik137/jsondiffgui.git
-
-Released under MIT license
+jsondiffgui released under MIT license
 Based on jq-web, json-diff, jsdifflib
     jq-web:
         https://github.com/fiatjaf/jq-web.git
@@ -78,9 +77,1629 @@ function _loadWasmModule (sync, src, imports) {
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly/instantiate
         return imports ? WebAssembly.instantiate(buf, imports) : WebAssembly.compile(buf)
       }require=(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+var css = "/*\nThis is part of jsdifflib v1.0. <http://github.com/cemerick/jsdifflib>\n\nCopyright 2007 - 2011 Chas Emerick <cemerick@snowtide.com>. All rights reserved.\n\nRedistribution and use in source and binary forms, with or without modification, are\npermitted provided that the following conditions are met:\n\n   1. Redistributions of source code must retain the above copyright notice, this list of\n      conditions and the following disclaimer.\n\n   2. Redistributions in binary form must reproduce the above copyright notice, this list\n      of conditions and the following disclaimer in the documentation and/or other materials\n      provided with the distribution.\n\nTHIS SOFTWARE IS PROVIDED BY Chas Emerick ``AS IS'' AND ANY EXPRESS OR IMPLIED\nWARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND\nFITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL Chas Emerick OR\nCONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR\nCONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\nSERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON\nANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING\nNEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF\nADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n\nThe views and conclusions contained in the software and documentation are those of the\nauthors and should not be interpreted as representing official policies, either expressed\nor implied, of Chas Emerick.\n*/\ntable.diff {\n  border-collapse: collapse;\n  border: 1px solid darkgray;\n  white-space: pre-wrap;\n  width: 100%;\n  border-collapse: collapse;\n}\ntable.diff tbody {\n  font-family: Courier, monospace;\n}\ntable.diff tbody th {\n  font-family: verdana,arial,'Bitstream Vera Sans',helvetica,sans-serif;\n  background: #EED;\n  font-size: 11px;\n  font-weight: normal;\n  border: 1px solid #BBC;\n  color: #886;\n  padding: .3em .5em .1em 2em;\n  text-align: right;\n  vertical-align: top;\n}\ntable.diff thead {\n  border-bottom: 1px solid #BBC;\n  background: #EFEFEF;\n  font-family: Verdana;\n}\ntable.diff thead th.texttitle {\n  text-align: left;\n}\ntable.diff tbody tr {\n  border-bottom: 1pt solid black;\n}\ntable.diff tbody th {\n  width: 1%;\n}\ntable.diff tbody td {\n  padding: 0px .4em;\n  padding-top: .4em;\n  vertical-align: top;\n  word-break: break-all;\n  width: 45%;\n}\ntable.diff .empty {\n  background-color: #DDD;\n}\ntable.diff .replace {\n  background-color: #FD8;\n}\ntable.diff .delete {\n  background-color: #E99;\n}\ntable.diff .skip {\n  background-color: #EFEFEF;\n  border: 1px solid #AAA;\n  border-right: 1px solid #BBC;\n}\ntable.diff .insert {\n  background-color: #9E9;\n}\ntable.diff .tree_unequal {\n  background-color: #CC8;\n}\ntable.diff th.author {\n  text-align: right;\n  border-top: 1px solid #BBC;\n  background: #EFEFEF;\n}\n"; (require("browserify-css").createStyle(css, { "href": "../3rdparty/jsdifflib/diffview.css" }, { "insertAt": "bottom" })); module.exports = css;
+},{"browserify-css":13}],2:[function(require,module,exports){
+// This file has three functions celt, telt, ctelt copied from jsdifflib v1.0. http://github.com/cemerick/jsdifflib
+// They are for creating html elements, used for creating rows of the diff
+// The following is the license text of jsdifflib
+/*
+This is part of jsdifflib v1.0. <http://github.com/cemerick/jsdifflib>
+
+Copyright 2007 - 2011 Chas Emerick <cemerick@snowtide.com>. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are
+permitted provided that the following conditions are met:
+
+   1. Redistributions of source code must retain the above copyright notice, this list of
+      conditions and the following disclaimer.
+
+   2. Redistributions in binary form must reproduce the above copyright notice, this list
+      of conditions and the following disclaimer in the documentation and/or other materials
+      provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY Chas Emerick ``AS IS'' AND ANY EXPRESS OR IMPLIED
+WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL Chas Emerick OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+The views and conclusions contained in the software and documentation are those of the
+authors and should not be interpreted as representing official policies, either expressed
+or implied, of Chas Emerick.
+*/
+
+(function(){
+function celt (name, clazz) {
+  var e = document.createElement(name);
+  e.className = clazz;
+  return e;
+}
+
+function telt (name, text) {
+  var e = document.createElement(name);
+  e.appendChild(document.createTextNode(text));
+  return e;
+}
+
+function ctelt (name, clazz, text) {
+  var e = document.createElement(name);
+  e.className = clazz;
+  e.appendChild(document.createTextNode(text));
+  return e;
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { celt, telt, ctelt }
+} else {   // we're in a browser
+  window.celt = celt;
+  window.telt = telt;
+  window.ctelt = ctelt;
+}
+
+
+})();
+
+},{}],3:[function(require,module,exports){
+/*
+
+jsondiffgui:
+jsondiffgui Copyright (c) 2023 Kaushik Sundararajan
+https://github.com/kaushik137/jsondiffgui.git
+The MIT License (MIT)
+Copyright (c) 2023 Kaushik Sundararajan
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+*/
+
+/* jshint esversion: 6                                  */
+/* jshint  undef:true                                  */
+/* jshint  curly:false                                  */
+/* exported helloval                                    */
+/* global isElementInView:true, eventCommand:true, create_table:true, JsondiffView:true, require:true, module:true */
+/* experimental:  [asyncawait, asyncreqawait]  */
+
+
+(function() {
+
+( JsondiffView      = require('../../jsondiffview.js') );
+( JsonDelta         = require('../../jsondelta.js') );
+( JsondiffViewModel         = require('../../jsondiffviewmodel.js') );
+( { eventCommand }    = require("./htmltable_eventcmder.js") );
+( { setTableHandler } = require('./htmltable_eventhandler.js') );
+( { create_table, isElementInView  } = require('./htmlutils.js') );
+
+
+const HtmltableView = function (json_delta, toCompact=0) {
+  this.viewmodel = new JsondiffViewModel(json_delta, toCompact)
+  console.log("HtmltableView: Number of Rows =", this.viewmodel.rowsRepr.length)
+  this.table = create_table(this.viewmodel.rowsRepr)
+  this.change_selected_index(1)
+  setTableHandler(this)
+
+  this.recursive_collapse(1)
+  this.toggle_collapse(1)
+  this.redraw_node(1)
+
+  return this
+}
+
+HtmltableView.prototype = JsondiffView.prototype
+
+HtmltableView.prototype.scroll2index = function (index, flag_scroll2top) {
+  const nearby_index = flag_scroll2top ? this.viewmodel.prev_row(index) : this.viewmodel.next_row(index)
+  const nearby_elem = this.table.rows[nearby_index]
+  nearby_elem.scrollIntoView(flag_scroll2top)
+}
+
+HtmltableView.prototype.scroll2selection = function() {
+  return this.cur_selected_index
+}
+
+HtmltableView.prototype.jsondiffguiCommands.scroll2selection = HtmltableView.prototype.scroll2selection
+
+HtmltableView.prototype.change_selected_index = function(index) {
+  console.assert( !this.viewmodel.is_hidden(index) )
+  if (this.cur_selected_index)
+    this.table.rows[this.cur_selected_index].style.outline = ""
+
+  this.cur_selected_index = index
+  this.table.rows[this.cur_selected_index].style.outline = "#FF5500 double"
+  return null
+}
+
+HtmltableView.prototype.jsondiffguiCommands.change_selected_index = HtmltableView.prototype.change_selected_index
+
+
+HtmltableView.prototype.handleEvent = function (event, row_index)
+{
+    // row_index will be null when called from handler for 'TABLE'
+    // (event.type==="keydown" && event.currentTarget.tagName==="TABLE")
+    var cmdObj = new eventCommand(event, this, row_index ? row_index : this.cur_selected_index)
+
+    const previndex = this.cur_selected_index
+    // In future, the command target may be different from 'this'
+    // var newindex = cmdObj ? cmdObj.cmd_target.execute(cmdObj) : null
+    var newindex = cmdObj.is_valid() ? cmdObj.Do() : null
+    console.log("cmd returned newindex = ", newindex, "cur selected index = ", this.cur_selected_index)
+
+    if (newindex) {
+      console.assert(newindex !== -1, "eventCommand ", cmdObj.cmdname, "returned index -1" )
+      var ancestor_node = newindex
+      if (this.viewmodel.is_hidden(newindex))
+        ancestor_node = this.viewmodel.expand_to_node(newindex)
+
+      this.redraw_node(ancestor_node)
+      if (newindex !== row_index)
+        this.change_selected_index( newindex )
+
+      var elem = this.table.rows[newindex]
+      if (!isElementInView(elem)) {
+        const flag_scroll2top = (newindex > previndex) ? true : false
+        this.scroll2index(newindex, flag_scroll2top)
+      }
+
+    }
+
+}
+
+function add_class_if_tree_unequal(table, row_index, cellindex, tree_is_unequal) {
+  if (tree_is_unequal)
+    table.rows[row_index].cells[cellindex].classList.add('tree_unequal')
+  else
+    table.rows[row_index].cells[cellindex].classList.remove('tree_unequal')
+}
+
+HtmltableView.prototype.redraw_node = function(ind) {
+  const viewmodel = this.viewmodel
+  const table = this.table
+
+  var range = viewmodel.get_node_range(ind)
+  for (var i = range[0]; i <= range[1]; ++i) {
+    var cur_row = table.rows[i]
+    cur_row.style.display = viewmodel.is_hidden(i) ? 'none' : 'table-row'
+
+    const celltexts = viewmodel.get_row_cells(i)
+    cur_row.cells[0].innerHTML = celltexts[0]
+    cur_row.cells[1].innerHTML = celltexts[1]
+    cur_row.cells[2].innerHTML = celltexts[2]
+    cur_row.cells[3].innerHTML = celltexts[3]
+
+    const tree_is_unequal = viewmodel.is_collapsed(i) && viewmodel.is_tree_unequal(i)
+    add_class_if_tree_unequal(table, i, 1, tree_is_unequal )
+    add_class_if_tree_unequal(table, i, 3, tree_is_unequal )
+  }
+
+}
+
+HtmltableView.prototype.execute = function(cmdobj) {
+  return cmdobj.fn.call(this, cmdobj.params.rowindex)
+}
+
+const create_jsondiff_htmltable = async function (basetxt, newtxt, toCompact=0) {
+  var json_delta = await JsonDelta(basetxt, newtxt)
+  var view = new HtmltableView(json_delta, toCompact)
+
+  return view.table
+}
+
+jsondiffgui.create_jsondiff_htmltable = create_jsondiff_htmltable
+
+})()
+
+},{"../../jsondelta.js":9,"../../jsondiffview.js":10,"../../jsondiffviewmodel.js":11,"./htmltable_eventcmder.js":4,"./htmltable_eventhandler.js":5,"./htmlutils.js":6}],4:[function(require,module,exports){
+/*
+
+jsondiffgui:
+jsondiffgui Copyright (c) 2023 Kaushik Sundararajan
+https://github.com/kaushik137/jsondiffgui.git
+The MIT License (MIT)
+
+Copyright (c) 2023 Kaushik Sundararajan
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+*/
+
+
+/* jshint esversion: 6                                  */
+/* jshint  undef:true                                  */
+/* global HtmltableView:true, module:true */
+
+(function() {
+// in mac does altKey map to option key?
+var eventCommandMaps = [
+  { 'eventSpec' : { 'tagName' : 'TH', 'type' : 'click'                                     }, 'commandName' : 'toggle_collapse' },
+  { 'eventSpec' : { 'tagName' : 'TH', 'type' : 'click', 'ctrlKey' : true                   }, 'commandName' : 'recursive_open' },
+  { 'eventSpec' : { 'tagName' : 'TH', 'type' : 'click', 'ctrlKey' : true, 'altKey' : true  }, 'commandName' : 'recursive_collapse' },
+  { 'eventSpec' : { 'tagName' : 'TD', 'type' : 'click'                                     }, 'commandName' : 'change_selected_index' },
+  { 'eventSpec' : { 'tagName' : 'TD', 'type' : 'click',                   'altKey' : true  }, 'commandName' : 'scroll2selection' },
+
+  { 'eventSpec' : { 'tagName' : 'TABLE', 'type' : 'keydown', 'key': 'p'  }, 'commandName' : 'prev_obj' },
+  { 'eventSpec' : { 'tagName' : 'TABLE', 'type' : 'keydown', 'key': 'n' }, 'commandName' : 'next_obj' },
+  { 'eventSpec' : { 'tagName' : 'TABLE', 'type' : 'keydown', 'key': 'Enter',      'ctrlKey' : true }, 'commandName' : 'recursive_open' },
+  { 'eventSpec' : { 'tagName' : 'TABLE', 'type' : 'keydown', 'key': 'Enter',      'ctrlKey' : true, 'altKey' : true }, 'commandName' : 'recursive_collapse' },
+
+  { 'eventSpec' : { 'tagName' : 'TABLE', 'type' : 'keydown', 'key': '['                      }, 'commandName' : 'obj_open' },
+  { 'eventSpec' : { 'tagName' : 'TABLE', 'type' : 'keydown', 'key': ']'                      }, 'commandName' : 'obj_close' },
+  { 'eventSpec' : { 'tagName' : 'TABLE', 'type' : 'keydown', 'key': 'k'                      }, 'commandName' : 'prev_row' },
+  { 'eventSpec' : { 'tagName' : 'TABLE', 'type' : 'keydown', 'key': 'j'                      }, 'commandName' : 'next_row' },
+  { 'eventSpec' : { 'tagName' : 'TABLE', 'type' : 'keydown', 'key': 'ArrowLeft'              }, 'commandName' : 'prev_diff' },
+  { 'eventSpec' : { 'tagName' : 'TABLE', 'type' : 'keydown', 'key': 'ArrowRight'             }, 'commandName' : 'next_diff' },
+  { 'eventSpec' : { 'tagName' : 'TABLE', 'type' : 'keydown', 'key': 'Enter'                  }, 'commandName' : 'toggle_collapse' },
+  { 'eventSpec' : { 'tagName' : 'TABLE', 'type' : 'keydown', 'key': 'Enter', 'altKey' : true }, 'commandName' : 'scroll2selection' },
+
+]
+
+function LOG() {
+  return
+}
+
+const eventCommand = function(event, target_view, inrowindex) {
+  const default_false = (x => x === undefined ? false : x)
+  const inEvent = event
+  const compare_event = ( x =>
+    ( inEvent.type                === x.eventSpec.type                    ) &&
+    ( inEvent.currentTarget.tagName  === x.eventSpec.tagName                    ) &&
+    ( inEvent.key                 === x.eventSpec.key                     ) &&
+    ( inEvent.ctrlKey             === default_false(x.eventSpec.ctrlKey)  ) &&
+    ( inEvent.altKey              === default_false(x.eventSpec.altKey)   ) &&
+    ( inEvent.shiftKey            === default_false(x.eventSpec.shiftKey) )
+  )
+
+  this.cmdname = "" ; this.fn = null; this.params = null ; this.cmd_target = null
+
+  var cmd_index = eventCommandMaps.findIndex(compare_event)
+  console.log("eventCommand: event = ",event, "tagname = ", event.currentTarget.tagName, "index = ", cmd_index)
+  if (cmd_index !== -1 && inrowindex) {
+    var cmdEventSpec = eventCommandMaps[cmd_index]
+    console.log("command = ", cmdEventSpec.commandName, "eventSpec = ", cmdEventSpec.eventSpec, "rowindex=", inrowindex)
+
+    const cmdname = cmdEventSpec.commandName
+    var cmdFn = target_view.jsondiffguiCommands[cmdname]
+    this.cmdname = cmdname; this.fn = cmdFn; this.params = { rowindex : inrowindex } ; this.cmd_target = target_view
+    console.assert( typeof(this.fn) === "function", "eventCommand invalid function passed, this=", this)
+  }
+
+  return this
+}
+
+eventCommand.prototype.is_valid = function () {
+  return this.cmdname && this.params && this.params.rowindex
+}
+
+
+eventCommand.prototype.Do = function () {
+  LOG("eventCommand ", this)
+  return this.cmd_target.execute(this)
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { eventCommand }
+} else {   // we're in a browser
+  window.eventCommand = eventCommand
+}
+
+
+
+})()
+
+
+
+},{}],5:[function(require,module,exports){
+/*
+
+jsondiffgui:
+jsondiffgui Copyright (c) 2023 Kaushik Sundararajan
+https://github.com/kaushik137/jsondiffgui.git
+The MIT License (MIT)
+
+Copyright (c) 2023 Kaushik Sundararajan
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+*/
+
+/* jshint esversion: 6                                  */
+/* jshint  undef:true                                  */
+
+(function() {
+
+function process_event(src, event, theview, row_index) {
+  return theview.handleEvent(event, row_index)
+}
+
+function onclick_td_handler(theview, row) {
+  return function(event) { return process_event(this, event, theview, row.rowIndex) }
+}
+
+function onclick_th_handler(theview, row) {
+  return function(event) { return process_event(this, event, theview, row.rowIndex) }
+}
+
+function keydown_table_handler(theview) {
+  return function(event) { return process_event(this, event, theview, null) }
+}
+
+function setTableHandler(theview) {
+  var table = theview.table
+  var rows = table.getElementsByTagName("tr");
+  table.addEventListener('keydown', keydown_table_handler(theview) )
+  table.tabIndex = 0
+
+  table.onfocus = function(e) { this.style.outline="#0E0 ridge" ; } // jshint unused:false
+  table.onblur  = function(e) { this.style.outline="" ; } // jshint unused:false
+    // Todo: reset it to old value?
+
+  for (var i = 1; i < rows.length; i++) {
+    var row = table.rows[i];
+    row.cells[0].onclick = onclick_th_handler(theview, row);
+    row.cells[2].onclick = onclick_th_handler(theview, row);
+    row.cells[1].onclick = onclick_td_handler(theview, row);
+    row.cells[3].onclick = onclick_td_handler(theview, row);
+    // reset_state_for_row(row)
+  }
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { setTableHandler }
+} else {   // we're in a browser
+  window.setTableHandler = setTableHandler
+}
+
+
+
+})()
+
+
+},{}],6:[function(require,module,exports){
+/*
+@license
+
+jsondiffgui:
+jsondiffgui Copyright (c) 2023 Kaushik Sundararajan
+https://github.com/kaushik137/jsondiffgui.git
+jsondiffgui released under MIT license
+Based on jq-web, json-diff, jsdifflib
+    jq-web:
+        https://github.com/fiatjaf/jq-web.git
+        Copyright (c) 2019 fiatjaf <fiatjaf@gmail.com>
+        license: ISC
+
+        used to transform json objects
+    json-diff:
+        https://github.com/andreyvit/json-diff.git
+        Copyright (c) 2015 Andrey Tarantsov
+        license: MIT
+
+        used to compute a diff of two jsons
+    jsdifflib v1.0:
+        <http://snowtide.com/jsdifflib>
+        Copyright (c) 2007, Snowtide Informatics Systems, Inc.
+        license: BSD
+
+        Three functions celt, telt, ctelt are used in jsondiffgui source
+
+
+The MIT License (MIT)
+
+Copyright (c) 2023 Kaushik Sundararajan
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+*/
+
+
+/* async/await not supported by jshint */
+
+/* jshint esversion: 6                                  */
+/* jshint  curly:false                                  */
+/* jshint  undef:true                                  */
+/* exported diffviewcss                                    */
+/* global require:true */
+/* global celt:true, telt:true, ctelt:true  */
+/* global innerWidth:true, innerHeight:true */
+/* experimental:  [asyncawait, asyncreqawait]  */
+
+(function() {
+let diffviewcss = require("../../../3rdparty/jsdifflib/diffview.css");
+
+( { celt, telt, ctelt } = require('../../../3rdparty/jsdifflib/htmlelem.js') );
+
+
+
+function create_row(rowrepr) {
+    var row = document.createElement("tr")
+
+    function create_cell(num, text, op) {
+      if (op==="empty") {
+        row.appendChild(document.createElement("th"));
+        row.appendChild(celt("td", "empty"));
+      } else {
+        row.appendChild(telt("th", num.toString()));
+        row.appendChild(ctelt("td", op, String(text))); // .replace(/\t/g, "\u00a0\u00a0\u00a0\u00a0")
+      }
+    }
+
+    create_cell(rowrepr.cells[0], rowrepr.cells[1], rowrepr.opcodes[0])
+    create_cell(rowrepr.cells[2], rowrepr.cells[3], rowrepr.opcodes[1])
+
+    return row
+}
+
+const create_table = function (RowsRepr) {
+    var baseTextName="base"
+    var newTextName="new"
+
+    var table = celt("table", "diff" );
+    var thead = document.createElement("thead");
+
+    var headrow = document.createElement("tr");
+    headrow.appendChild(document.createElement("th"));
+    headrow.appendChild(ctelt("th", "texttitle", baseTextName));
+    headrow.appendChild(document.createElement("th"));
+    headrow.appendChild(ctelt("th", "texttitle", newTextName));
+
+    var tbody=document.createElement("tbody");
+
+    table.appendChild(thead)
+    thead.appendChild(headrow)
+    table.appendChild(tbody)
+
+    const re_number = /^(0|[1-9]\d*)$/
+    var arr_notation=function(x) { var m=x.match(re_number); return m ? "["+m[0]+"]" : "."+x }
+
+    for (var i=1; i< RowsRepr.length ; ++i) {
+      var xrow=create_row(RowsRepr[i])
+      //const tooltip = RowsRepr[i].linerepr.path.map(arr_notation).join('')
+      const row = RowsRepr[i]
+      var fn = (x => x === "same" ? row.linerepr.path : x)
+
+      var apath = fn(row.actual_paths[0])
+      xrow.cells[0].title = apath ? apath.map(arr_notation).join('') : null
+      apath = fn(row.actual_paths[1])
+      xrow.cells[2].title = apath ? apath.map(arr_notation).join('') : null
+
+      tbody.insertBefore(xrow, null); // if 2nd arg is null will be appended, i.e inserted at the end
+    }
+
+    return table
+}
+
+
+function isElementInView(elem) {
+  var vw=Math.max( innerWidth || 0, document.documentElement.clientWidth)
+  var vh=Math.max( innerHeight || 0, document.documentElement.clientHeight)
+
+  var rect = elem.getBoundingClientRect()
+  return (rect.top >= 0 && rect.left >= 0 && rect.bottom > 0 && rect.right > 0 && rect.bottom < vh && rect.right < vw)
+
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { create_table, isElementInView }
+} else {   // we're in a browser
+  window.create_table = create_table
+  window.isElementInView = isElementInView
+}
+
+
+
+})()
+
+},{"../../../3rdparty/jsdifflib/diffview.css":1,"../../../3rdparty/jsdifflib/htmlelem.js":2}],7:[function(require,module,exports){
+/* global jsondiffgui:true */
+jsondiffgui.version="1.0 Build:2024-02-12 2012"
+// console.log("jsondiffgui version:",jsondiffgui.version)
+
+},{}],8:[function(require,module,exports){
+/*
+
+jsondiffgui:
+jsondiffgui Copyright (c) 2023 Kaushik Sundararajan
+https://github.com/kaushik137/jsondiffgui.git
+The MIT License (MIT)
+
+Copyright (c) 2023 Kaushik Sundararajan
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+*/
+
+/* jshint esversion: 6                                  */
+/* jshint  undef:true                                  */
+/* jshint  curly:false                                  */
+/* exported helloval                                    */
+/* global require:true */
+/* global module:true */
+
+(function(){
+var patchArr='def patch_arrays($op): walk(if ( (type=="array" ) and (length == 2 ) and (.[0]==" " or.[0]=="-" or .[0]=="+" or .[0]=="~" )   ) then if ( .[0] == $op ) then "__deleted__" else .[1] end else . end ) ; '
+
+var fixKeys='def fixKeys($tag): ["__added", "__deleted"] as $a | ( if $tag=="__old" then ($a|reverse) else $a end ) as [$x,$y] | with_entries( if (.key|endswith($y)) then .value|="__deleted__" else . end | .key|=rtrimstr($x)  | .key|=rtrimstr($y)) ; '
+
+var patchObj=fixKeys + 'def patch_obj($tag): (.. | select(has($tag)?)  )|=.[$tag] | walk(if type=="object" then fixKeys($tag) else . end) ; '
+
+/*
+async function patch_delta(b12) {
+  const jq = await require('jq-web')
+  const _ = await require('lodash')
+
+  async function patch_for_base(b12) {
+    return jq.promised.json( b12, patchArr + patchObj +  'patch_arrays("+") | patch_obj("__old")' ).then( res => _.cloneDeep(res) ).catch(x => console.log("Err: ",x))
+  }
+
+  async function patch_for_new(b12) {
+    return jq.promised.json( b12, patchArr + patchObj +  'patch_arrays("-") | patch_obj("__new")' ).then( res => _.cloneDeep(res) ).catch(x => console.log("Err: ",x))
+  }
+
+  var allRes = await Promise.all([ patch_for_base(b12), patch_for_new(b12)]);
+  return { left: allRes[0], right: allRes[1] }
+}
+*/
+
+async function patch_delta(b12) {
+  const jq=require('jq-web')
+  const _=require('lodash')
+
+  var d = {}
+  d.left  = await jq.promised.json( b12, patchArr + patchObj +  'patch_arrays("+") | patch_obj("__old")' ).then( res => _.cloneDeep(res) ).catch(x => console.log("Err: ",x))
+  d.right = await jq.promised.json( b12, patchArr + patchObj +  'patch_arrays("-") | patch_obj("__new")' ).then( res => _.cloneDeep(res) ).catch(x => console.log("Err: ",x))
+
+  return d
+}
+
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports={
+  patch_delta
+  };
+} else {   // we're in a browser
+  window.patch_delta = patch_delta;
+}
+
+})();
+
+},{"jq-web":"jq-web","lodash":"lodash"}],9:[function(require,module,exports){
+/*
+
+jsondiffgui:
+jsondiffgui Copyright (c) 2023 Kaushik Sundararajan
+https://github.com/kaushik137/jsondiffgui.git
+The MIT License (MIT)
+
+Copyright (c) 2023 Kaushik Sundararajan
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+*/
+
+
+/* async/await not supported by jshint */
+
+/* jshint esversion: 6                                  */
+/* exported helloval                                    */
+/* global require:true */
+/* global module:true */
+/* experimental:  [asyncawait, asyncreqawait]  */
+
+(function() {
+
+const JsonDelta = async function (basetxt, newtxt) {
+  const json_diff=require('json-diff')
+  const jqutils=require('./jqutils.js')
+  var delta_lr=json_diff.diff(JSON.parse(basetxt, 'utf-8'), JSON.parse(newtxt,'utf-8'), {keepUnchangedValues: true, full: true } )
+  const patched_lr=await jqutils.patch_delta( delta_lr)
+  return patched_lr
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = JsonDelta
+} else {   // we're in a browser
+  window.JsonDelta = JsonDelta
+}
+
+})()
+
+},{"./jqutils.js":8,"json-diff":"json_diff"}],10:[function(require,module,exports){
+/*
+
+jsondiffgui:
+jsondiffgui Copyright (c) 2023 Kaushik Sundararajan
+https://github.com/kaushik137/jsondiffgui.git
+The MIT License (MIT)
+
+Copyright (c) 2023 Kaushik Sundararajan
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+*/
+
+/* jshint esversion: 6                                  */
+/* jshint  undef:true                                  */
+/* global module:true, JsondiffView:true */
+/* experimental:  [asyncawait, asyncreqawait]  */
+
+(function() {
+
+jsondiffgui = { version: 1.0  }
+
+let JsondiffView = function () {  }
+
+JsondiffView.prototype.scroll2selection = null
+
+JsondiffView.prototype.change_selected_index = null
+
+JsondiffView.prototype.recursive_collapse = function(row_index) {
+  const toCollapse = true
+  return this.viewmodel.recursive_collapse(row_index, toCollapse)
+}
+
+JsondiffView.prototype.recursive_open = function(row_index) {
+  const toCollapse = false
+  return this.viewmodel.recursive_collapse(row_index, toCollapse)
+}
+
+JsondiffView.prototype.toggle_collapse = function(row_index) {
+  return this.viewmodel.collapse(row_index, "flip")
+}
+
+JsondiffView.prototype.prev_row = function(row_index) {
+  return this.viewmodel.prev_row(row_index)
+}
+
+JsondiffView.prototype.next_row = function(row_index) {
+  return this.viewmodel.next_row(row_index)
+}
+
+JsondiffView.prototype.prev_obj = function(row_index) {
+  return this.viewmodel.prev_obj(row_index)
+}
+
+JsondiffView.prototype.next_obj = function(row_index) {
+  return this.viewmodel.next_obj(row_index)
+}
+
+JsondiffView.prototype.prev_diff = function(row_index) {
+  return this.viewmodel.prev_diff(row_index)
+}
+
+JsondiffView.prototype.next_diff = function(row_index) {
+  return this.viewmodel.next_diff(row_index)
+}
+
+JsondiffView.prototype.obj_open = function(row_index) {
+  return this.viewmodel.obj_open(row_index)
+}
+
+JsondiffView.prototype.obj_close = function(row_index) {
+  return this.viewmodel.obj_close(row_index)
+}
+
+JsondiffView.prototype.handleEvent = function (event) { // jshint unused:false
+  return
+}
+
+JsondiffView.prototype.redraw_node = function (index) { // jshint unused:false
+  return
+}
+
+
+JsondiffView.prototype.jsondiffguiCommands = {
+  "scroll2selection" : JsondiffView.prototype.scroll2selection,
+  "change_selected_index" : JsondiffView.prototype.change_selected_index,
+  "recursive_collapse" : JsondiffView.prototype.recursive_collapse,
+  "recursive_open" : JsondiffView.prototype.recursive_open,
+  "toggle_collapse" : JsondiffView.prototype.toggle_collapse,
+  "prev_row" : JsondiffView.prototype.prev_row,
+  "next_row" : JsondiffView.prototype.next_row,
+  "prev_obj" : JsondiffView.prototype.prev_obj,
+  "next_obj" : JsondiffView.prototype.next_obj,
+  "prev_diff" : JsondiffView.prototype.prev_diff,
+  "next_diff" : JsondiffView.prototype.next_diff,
+  "obj_open" : JsondiffView.prototype.obj_open,
+  "obj_close" : JsondiffView.prototype.obj_close
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = JsondiffView
+} else {
+  window.JsondiffView = JsondiffView
+}
+
+
+})()
+
+
+
+},{}],11:[function(require,module,exports){
+/*
+
+jsondiffgui:
+jsondiffgui Copyright (c) 2023 Kaushik Sundararajan
+https://github.com/kaushik137/jsondiffgui.git
+The MIT License (MIT)
+
+Copyright (c) 2023 Kaushik Sundararajan
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+*/
+
+
+/* jshint esversion: 6                                  */
+/* jshint  undef:true                                  */
+/* jshint  curly:false                                  */
+/* global require:true */
+/* experimental:  [asyncawait, asyncreqawait]  */
+
+(function(){
+
+const _=require('lodash');
+( { get_path_range, generate_diff } = require('./jsonutils.js') );
+
+function LOG() { return ; }
+
+const is_different = r => r.opcodes.some( x=> x!=='equal' && x!=='tree_unequal')
+
+const JsondiffViewModel = function (json_deltas, toCompact=0) {
+  this.json_deltas = json_deltas
+  this.rowsRepr = generate_diff(json_deltas.left, json_deltas.right, toCompact)
+  this.current_selected_index = 0
+
+  return this
+}
+
+JsondiffViewModel.prototype._RRPath = function (i)      { return this.rowsRepr[i].linerepr.path   }
+
+JsondiffViewModel.prototype._RRLen = function (i)       { return this.rowsRepr[i].linerepr.length }
+
+JsondiffViewModel.prototype._RRFind = function (fn, i=0, j=null) {
+  j = j || this.rowsRepr.length
+  var next = this.rowsRepr.slice(i,j).findIndex(fn)
+  return (next === -1 ) ? -1 : i+next
+}
+
+JsondiffViewModel.prototype._RRFindLastIndex = function (fn, i=0, j=null) {
+  j = j || this.rowsRepr.length
+  var next = this.rowsRepr.slice(i,j).findLastIndex(fn)
+  return (next === -1 ) ? -1 : i+next
+}
+
+JsondiffViewModel.prototype.is_collapsed = function (index) {
+  return this.rowsRepr[index].is_collapsed
+}
+
+JsondiffViewModel.prototype.is_ancestor_collapsed = function (index) {
+  return this.rowsRepr[index].ancestor_collapsed
+}
+
+JsondiffViewModel.prototype.is_hidden = function (index) {
+    // or hidden_from_diff due to diff context (in future)
+    return this.is_ancestor_collapsed(index)
+}
+
+JsondiffViewModel.prototype.is_tree_unequal = function (index) {
+  return this.rowsRepr[index].tree_unequal
+}
+
+
+JsondiffViewModel.prototype.get_node_range = function (index) {
+  return get_path_range(index, this._RRLen(index) )
+}
+
+JsondiffViewModel.prototype.get_row_cells = function (index) {
+  return this.rowsRepr[index].cells
+}
+
+JsondiffViewModel.prototype.expand_to_node = function (index) {
+  var path = this._RRPath(index)
+    const line_matches_path = function (inPath) {
+      return ( x => x.linerepr.length>0 && _.isEqual(x.linerepr.path, inPath) )
+    }
+
+  var paths_to_update = []
+  for (var i = 0; i <= path.length-1; ++i) {
+    var ancestor_path = path.slice(0,i)
+
+    // var ancestor_index = this._RRFind( x => x.linerepr.length>0 && _.isEqual(x.linerepr.path, ancestor_path) )
+    var ancestor_index = this._RRFind( line_matches_path(ancestor_path) )
+
+    console.assert( ancestor_index !== -1 , "expand to node: ancestor_index!=-1 "+ancestor_index)
+    if (this.rowsRepr[ancestor_index].is_collapsed) {
+      this.collapse(ancestor_index, false)
+      paths_to_update.push(ancestor_index)
+    }
+  }
+
+  LOG("expand to node: paths to update", paths_to_update)
+  return  paths_to_update[0]
+}
+
+JsondiffViewModel.prototype.set_collapsedtext = function (index, objIndex, toCollapse) {
+  var cellIndex = (objIndex*2) + 1
+  var celltext = this.rowsRepr[index].cells[cellIndex]
+  var replaced_text = celltext
+
+  const re_collapsed = /^ *@.*\.\.\.$/
+  const re_number = /^(0|[1-9]\d*)$/
+
+  var cur_row = this.rowsRepr[index]
+  var fn = (x => x === "same" ? cur_row.linerepr.path : x)
+
+  // Todo: assuming no multiline when deleted. actual_paths may be null otherwise
+  const thepath = fn(cur_row.actual_paths[objIndex])
+  const node_key = thepath.at(-1)
+  const node_key_isArrayIndex = node_key ? node_key.match(re_number) : null
+
+  if (toCollapse && !celltext.match(re_collapsed) ) {
+      if (node_key_isArrayIndex)
+        replaced_text = celltext.replace(/^( *)(.*)/,"$1"+"@["+node_key+"] $2"+"...")
+      else
+        replaced_text = celltext.replace(/^( *)(.*)/,"$1"+"@"+"$2"+"...")
+  }
+  else if (!toCollapse && celltext.match(re_collapsed) ) {
+      if (node_key_isArrayIndex)
+        replaced_text = celltext.replace(/^(.*)@\[\d+\] (.*)\.\.\./,"$1"+"$2");
+      else
+        replaced_text = celltext.replace(/^(.*)@(.*)\.\.\./,"$1"+"$2");
+  }
+
+  this.rowsRepr[index].cells[cellIndex] = replaced_text
+}
+
+JsondiffViewModel.prototype.collapse = function (index, toCollapse) {
+  var range = this.get_node_range(index)
+  var startIndex = range[0], endIndex = range[1]
+
+  if (toCollapse === "flip")
+    toCollapse = !this.rowsRepr[index].is_collapsed
+
+  this.rowsRepr[startIndex].is_collapsed = toCollapse ? true : false
+  this.rowsRepr[endIndex].is_collapsed   = toCollapse ? true : false
+
+  if (toCollapse) {
+    for (let i = startIndex+1; i < endIndex; i++) {
+      this.rowsRepr[i].ancestor_collapsed = true
+    }
+  } else {
+      let i=startIndex+1
+      while (i < endIndex) {
+        var node_length = this._RRLen(i)
+        // set ancestor_collapsed stated for both start and end for a node that span multiple lines
+        // if on a node spanning multiple lines, the end brace occurs at [i+ node_length - 1]
+        // Also skip so many rows so that collapse state is not changed, since we are not opening recursively
+        this.rowsRepr[i].ancestor_collapsed = false
+        if (node_length !== null && node_length > 0) {
+          this.rowsRepr[i + node_length -1].ancestor_collapsed = false
+          if (this.rowsRepr[i].is_collapsed)
+            i += node_length - 1
+        }
+        i = i + 1
+      }
+  }
+
+  this.update_collapsedtext(startIndex)
+  return startIndex
+}
+
+JsondiffViewModel.prototype.recursive_collapse = function (rowIndex, toCollapse) {
+  var range = this.get_node_range( rowIndex)
+  var startIndex = range[0], endIndex = range[1]
+
+  this.rowsRepr[startIndex].is_collapsed = toCollapse ? true : false // for row with opening brace
+  this.rowsRepr[endIndex].is_collapsed   = toCollapse ? true : false // for row with closing brace
+
+  for(var i = startIndex+1; i < endIndex; ++i) {
+    var node_length = this._RRLen(i)
+
+    this.rowsRepr[i].ancestor_collapsed = toCollapse
+    if (node_length !== null && node_length > 0) {
+      this.rowsRepr[i].is_collapsed = toCollapse
+      this.rowsRepr[i+node_length-1].is_collapsed = toCollapse
+    }
+  }
+
+  this.update_collapsedtext(startIndex)
+  return startIndex
+}
+
+JsondiffViewModel.prototype.prev_diff = function (i) {
+  const maxindex = this.rowsRepr.length - 1
+  var index = i<=1 ? maxindex : i-1
+
+  var next = this._RRFindLastIndex(is_different, 0, index+1)
+  if (next === -1) {
+    next = this._RRFindLastIndex(is_different, index)
+  }
+  return next
+}
+
+JsondiffViewModel.prototype.next_diff = function (i) {
+  const maxindex = this.rowsRepr.length - 1
+  var index = i>=maxindex ? 1 : i+1
+
+  var next = this._RRFind(is_different, index)
+  if (next === -1) {
+    next = this._RRFind(is_different, 1)
+  }
+
+  return next
+}
+
+JsondiffViewModel.prototype.prev_row = function(rowIndex) {
+  if (rowIndex<=1)
+    return 1
+
+  for (var i = rowIndex-1; i>1; --i) {
+    if (!this.is_hidden(i))
+      break
+  }
+
+  return i
+}
+
+JsondiffViewModel.prototype.next_row = function(rowIndex) {
+  const maxlen = this.rowsRepr.length-1
+  if (rowIndex>=maxlen)
+    return maxlen
+
+  for (var i = rowIndex+1; i<maxlen-1; ++i) {
+    if (!this.is_hidden(i))
+      break
+  }
+  return i
+
+}
+
+JsondiffViewModel.prototype.prev_obj = function(rowIndex) {
+  var len = this._RRLen(rowIndex)
+  var path = this._RRPath(rowIndex)
+
+  if (len > 0) {
+    rowIndex = this._RRFind( x => x.linerepr.length>0 && _.isEqual(x.linerepr.path, path ) )
+    path = this._RRPath(rowIndex)
+  }
+  console.assert( rowIndex !== -1, "path for object start not found" )
+
+  var nextind = this._RRFindLastIndex( x => x.linerepr.length!==null && x.linerepr.length>0 && x.linerepr.path.length<=path.length , 0, rowIndex)
+
+  return nextind === -1 ? 1 : nextind
+}
+
+JsondiffViewModel.prototype.next_obj = function(rowIndex) {
+  var len = this._RRLen(rowIndex)
+  var path = this._RRPath(rowIndex)
+
+  if (len > 0)
+    rowIndex = this._RRFind( x => x.linerepr.length<0 && _.isEqual(x.linerepr.path, path ) )
+
+  console.assert( rowIndex !== -1, "path for object closing brace not found")
+
+  var nextind = this._RRFind( x => x.linerepr.length!==null && x.linerepr.length>0 , rowIndex+1)
+
+  return nextind === -1 ? this.rowsRepr.length-1 : nextind
+}
+
+
+JsondiffViewModel.prototype.obj_open = function(rowIndex) {
+  var parent = this._RRPath(rowIndex).slice(0,-1)
+  return this._RRFind( x => _.isEqual(x.linerepr.path, parent) )
+}
+
+JsondiffViewModel.prototype.obj_close = function(rowIndex) {
+  var parent = this._RRPath(rowIndex).slice(0,-1)
+  return this._RRFind( x => x.linerepr.length<0 && _.isEqual(x.linerepr.path, parent) )
+}
+
+
+JsondiffViewModel.prototype.update_collapsedtext = function (index) {
+  var range = this.get_node_range(index)
+  var start = range[0], end = range[1]
+  for (var i = start; i <= end; i++) {
+    var node_length = this._RRLen(i)
+    if (node_length &&  (node_length>0) ) {
+        var toCollapse = this.rowsRepr[i].is_collapsed
+        this.set_collapsedtext(i, 0, toCollapse)
+        this.set_collapsedtext(i, 1, toCollapse)
+    }
+  }
+}
+
+
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = JsondiffViewModel;
+} else {   // we're in a browser
+  window.JsondiffViewModel = JsondiffViewModel;
+}
+
+})();
+
+
+
+
+},{"./jsonutils.js":12,"lodash":"lodash"}],12:[function(require,module,exports){
+/*
+
+jsondiffgui:
+jsondiffgui Copyright (c) 2023 Kaushik Sundararajan
+https://github.com/kaushik137/jsondiffgui.git
+The MIT License (MIT)
+
+Copyright (c) 2023 Kaushik Sundararajan
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+*/
+
+/* jshint esversion: 6                                  */
+/* jshint  undef:true                                  */
+/* jshint  curly:false                                  */
+/* global require:true, module:true */
+/* experimental:  [asyncawait, asyncreqawait]  */
+
+
+(function(){
+
+function assert() { }
+
+const _=require('lodash')
+
+class LineRepr {
+  constructor(path, length ) {
+    this.path=path; this.length=length; // this.lastkey=lastkey
+  }
+  // first_term() { }
+  // last_term() { }
+  str(jo) {
+    var path=this.path
+    var obj = (path.length > 0 ) ? _.get(jo , path) : jo
+    if (obj===undefined) return undefined
+    assert ( (typeof(obj)==='object' || this.length===null), "length should be 1 for scalar paths")
+    var val=obj
+    var key=(path.length>=1) ? path[path.length-1] : ""
+    if (typeof(obj)==='object') {
+      if (this.length===null)
+        val=JSON.stringify(obj)
+      else {
+        if (this.length>0)
+          val=Array.isArray(obj) ? "[" : "{"
+        else if (this.length<0)
+          { val=Array.isArray(obj) ? "]" : "}" ; key="" }
+        else
+          assert(true, "this.length shouldn't be 1 for multiline paths")
+      }
+    }
+
+    var indent="  ".repeat(path.length)
+    key=(key==="" || Number.isInteger(Number(key))) ? "" : (key+": ") // Todo: Ideally check if parent is of type array
+    return (val==="__deleted__") ? undefined : indent+key+val
+  }
+}
+
+const is_key_integer = function (path) {
+  const re_number = /^(0|[1-9]\d*)$/
+
+  const node_key = path.at(-1)
+  return node_key ? node_key.match(re_number) : null
+}
+
+function lodash_get(obj, path) {
+  return path.length === 0 ? obj : _.get(obj, path)
+}
+
+const isPathSpecMultiline = function (jo, path) {
+  "use strict";
+  var multiline=0
+  const toCompact = 0 // Compact feature to turn on if needed
+  var obj = (path.length > 0 ) ? _.get(jo ,path) : jo
+  if (typeof(obj)==='object') {
+    if (!_.isEmpty(obj)) {
+      multiline=1
+      if (toCompact>=1 && Object.values(obj).every((x) => typeof(x)!=='object') )
+        multiline=0
+    }
+  }
+  return multiline
+}
+
+const get_linerepr_for_node = function (jo, node_path) {
+  "use strict";
+  var length=isPathSpecMultiline(jo, node_path) ? 1 : null
+  var d={ path: node_path, length: length }
+
+  return d
+}
+
+const next_key = function (inObj, par, inKey=null) {
+    var obj = (par.length > 0 ) ? _.get(inObj ,par) : inObj
+
+    var outKey=null
+    if (typeof(obj)==='object') {
+        var arr=Object.keys(obj)
+        if (arr.length===0)
+            outKey=null
+        else if (inKey===null)
+            outKey=arr[0]
+        else {
+            var i=arr.indexOf(String(inKey))
+            assert( i>=0, `next_key: par=${par} inKey=${inKey} is invalid path` )
+            outKey= (i>=0 && i<arr.length-1) ? arr[i+1] : null
+        }
+    }
+
+    return outKey
+}
+
+const next_linerepr = function (inObj, line) {
+  "use strict";
+  if (line===null)
+    return get_linerepr_for_node(inObj, [])
+
+  var path=line.path, nLine=null
+  if (line.length===null && path.length>0) {
+      let nKey=next_key(inObj, path.slice(0,-1), path[path.length-1])
+      path.pop()
+      if (nKey)
+          nLine=get_linerepr_for_node(inObj, path.concat([nKey]))
+      else
+          nLine={ path: path, length: -1 }
+  } else {
+    // assert( Object.keys(obj).length>0, "Fatal Error: when line.length!=null object can't be empty. Must have got atleast one key here")
+    if (line.length>0) { // opening a brace for an object
+      let nKey=next_key(inObj, path, null)
+      assert( nKey, "Fatal Error: Must have got a key here")
+      path.push(nKey)
+      nLine=get_linerepr_for_node(inObj, path)
+    } else { // line.length<0  -- closing a brace for some path
+      if (path.length>0)
+      {
+        var nKey=next_key(inObj, path.slice(0,-1), path[path.length-1])
+        path.pop()
+        if (nKey)
+            nLine=get_linerepr_for_node(inObj, path.concat([nKey]))
+        else
+            nLine={ path: path, length: -1 }
+      }
+    }
+  }
+
+  return nLine
+}
+
+const get_diffrepr_for_line = function (left, right, linerepr, par_row) {
+    var lobj = (linerepr.path.length > 0 ) ? _.get(left,  linerepr.path) : left
+    var robj = (linerepr.path.length > 0 ) ? _.get(right, linerepr.path) : right
+    // ToAssert lobj && robj  !== undefined
+    // Todo : why? we shouldnt force deleted paths to be single line always.
+    if (lobj===undefined || lobj==="__deleted__" || robj===undefined || robj==="__deleted__" )
+      linerepr.length=null
+
+    var l=new LineRepr(linerepr.path, linerepr.length ).str(left)
+    var r=new LineRepr(linerepr.path, linerepr.length ).str(right)
+
+    // Todo: Handle replace of different object types
+    var opcodes=[ "equal", "equal" ]
+    assert( (l!==undefined || r!==undefined) , `FatalError: For path ${linerepr.path}, both left and right paths are missing`)
+    if (l===undefined || l==="__deleted__") {
+      opcodes=[ "empty", "insert" ]
+      l=""
+    }
+    if (r===undefined || r==="__deleted__" ) {
+      opcodes=[ "delete", "empty" ]
+      r=""
+    }
+
+    if (l!=="" && r!=="" && l!==r)
+      opcodes=[ "replace", "replace" ]
+
+    var tree_unequal=null
+    if (opcodes[0] === 'equal' && opcodes[1] === 'equal' && linerepr.length!==null && linerepr.length>=1) {
+      // At the start of a vector field
+      tree_unequal = _.isEqual( lobj, robj) ? 0 : 1
+    }
+
+    var actual_paths = [ "same", "same" ]
+    actual_paths[0] = (lobj === "__deleted__") ? null : get_actual_paths(left, 0, linerepr, par_row)
+    actual_paths[1] = (robj === "__deleted__") ? null : get_actual_paths(right, 1, linerepr, par_row)
+
+    return { l : l, r: r, opcodes : opcodes, tree_unequal : tree_unequal, actual_paths: actual_paths }
+}
+
+const get_path_range = function (lineIndex, len) {
+  "use strict";
+  if (len === null)
+    return [ lineIndex, lineIndex]
+
+  var offset = (len > 0) ? len-1 : len+1
+  var startIndex, endIndex
+
+  if (offset > 0) {
+    // An object opening brace
+    startIndex = lineIndex
+    endIndex = lineIndex + offset
+  } else {
+    // An object closing brace
+    endIndex = lineIndex
+    startIndex = lineIndex + offset
+  }
+
+  return [ startIndex, endIndex ]
+}
+
+const get_path_length = function (Rows, path_index) {
+  "use strict";
+  var len = null
+  var linerepr = Rows[path_index].linerepr
+
+  if (linerepr.length !== null) {
+    var areNegatives = function (x,y) { return (y*x < 0) ? true : false }
+    var matchForCurRowPath = function (x) {
+      return _.isEqual(x.linerepr.path,linerepr.path) && areNegatives(x.linerepr.length, linerepr.length)
+    }
+
+    var matchIndex = 1 + Rows.slice(1).findIndex(x => matchForCurRowPath(x) )
+    if (linerepr.length > 0)
+      len = matchIndex - path_index + 1
+    else {
+      len = path_index - matchIndex + 1
+      len = (linerepr.length > 0) ? len : -len
+    }
+  }
+
+  return len
+
+}
+
+const get_equal_sections = function (Rows, ctxtSize) {
+  var isequal = (row => row.opcodes[0]==='equal' && row.opcodes[1]==='equal')
+  var next_row = ( (start,fn) => { var i=Rows.slice(start).findIndex(fn); return (i===-1||start===null) ? null : start + i } )
+  var is_notequal = (row => !isequal(row) )
+
+  var r1=0, r2=0
+  var equal_sections=[]
+  var minSize=ctxtSize*2
+
+  do
+  {
+    r1 = next_row(r2, isequal)
+    r2 = next_row( is_notequal)
+
+    if (r2===null || r2 - r1 >= minSize)
+      equal_sections.push( [ r1, r2 ] )
+
+  }
+  while (r1!==null && r2!==null);
+
+  return equal_sections
+}
+
+const get_actual_paths = function (left, a_path_ind, linerepr, par_row) {
+  var ret_path = "same"
+  if (par_row)
+  {
+    var parent_a_p = par_row.actual_paths[a_path_ind]
+    if (parent_a_p === "same")
+      parent_a_p = par_row.linerepr.path
+
+    ret_path = JSON.parse(JSON.stringify(parent_a_p))
+    ret_path.push(get_actual_key(left, linerepr.path) )
+  }
+
+  return ret_path
+}
+
+function get_actual_key(obj, path) {
+  const del = "__deleted__"
+
+  if (path.length === 0 ) return null
+  var actual_key = path.at(-1)
+
+  if (is_key_integer(path)) {
+    var arr = lodash_get(obj, path.slice(0,-1))
+    const index = Number(path.at(-1))
+    var del_count = arr.slice(0,index).reduce( ((acc, val) => { return (val === del) ? ++acc : acc; } ), 0)
+    const real_index = index - del_count
+    actual_key = String(real_index)
+  }
+
+  return actual_key
+}
+
+const get_parent_index = function (rows, path) {
+  if (path.length === 0) return null
+
+  const parent = path.slice(0,-1)
+  const fn = ( x => x.linerepr.length>0 && _.isEqual(x.linerepr.path, parent) )
+  const ind = rows.findLastIndex(fn)
+  console.assert( ind !== -1, "Parent node path not found")
+  return ind
+}
+
+
+const generate_diff = function (left,right, toCompact=0) { // jshint unused:false
+  var linerepr=null
+  var null_row={ linerepr: {path: null, length: null}, cells: [ 0, "", 0, "" ], opcodes: [ "equal", "equal" ] , actual_paths: ["same", "same"], is_collapsed : false, ancestor_collapsed : false }
+  var Rows=[ null_row ]
+  var prevline = [0,0]
+
+  while (linerepr=next_linerepr(left, linerepr)) {
+    var par_ind = get_parent_index(Rows, linerepr.path)
+    var difrepr = get_diffrepr_for_line(left, right, linerepr, par_ind ? Rows[par_ind] : null)
+    var row=JSON.parse(JSON.stringify(null_row))
+    row.linerepr=linerepr
+    row.cells[0]=prevline[0]+1
+    row.cells[1]=difrepr.l
+    row.cells[2]=prevline[1]+1
+    row.cells[3]=difrepr.r
+    if (row.cells[1])
+      prevline[0] = row.cells[0]
+    if (row.cells[3])
+      prevline[1] = row.cells[2]
+    row.opcodes[0]=difrepr.opcodes[0]
+    row.opcodes[1]=difrepr.opcodes[1]
+    row.actual_paths[0] = difrepr.actual_paths[0]
+    row.actual_paths[1] = difrepr.actual_paths[1]
+    row.tree_unequal=difrepr.tree_unequal
+    Rows.push(JSON.parse(JSON.stringify(row)))
+  }
+
+  for (var i = 1; i < Rows.length; ++i) {
+    Rows[i].linerepr.length = get_path_length( Rows, i )
+  }
+
+  return Rows
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports={
+  next_key,
+  LineRepr,
+  get_linerepr_for_node,
+  next_linerepr,
+  get_path_range,
+  get_equal_sections,
+  generate_diff,
+  get_diffrepr_for_line
+  };
+} else {   // we're in a browser
+  window.get_path_range = get_path_range;
+  window.generate_diff = generate_diff;
+}
+
+})();
+
+
+},{"lodash":"lodash"}],13:[function(require,module,exports){
+'use strict';
+// For more information about browser field, check out the browser field at https://github.com/substack/browserify-handbook#browser-field.
+
+var styleElementsInsertedAtTop = [];
+
+var insertStyleElement = function(styleElement, options) {
+    var head = document.head || document.getElementsByTagName('head')[0];
+    var lastStyleElementInsertedAtTop = styleElementsInsertedAtTop[styleElementsInsertedAtTop.length - 1];
+
+    options = options || {};
+    options.insertAt = options.insertAt || 'bottom';
+
+    if (options.insertAt === 'top') {
+        if (!lastStyleElementInsertedAtTop) {
+            head.insertBefore(styleElement, head.firstChild);
+        } else if (lastStyleElementInsertedAtTop.nextSibling) {
+            head.insertBefore(styleElement, lastStyleElementInsertedAtTop.nextSibling);
+        } else {
+            head.appendChild(styleElement);
+        }
+        styleElementsInsertedAtTop.push(styleElement);
+    } else if (options.insertAt === 'bottom') {
+        head.appendChild(styleElement);
+    } else {
+        throw new Error('Invalid value for parameter \'insertAt\'. Must be \'top\' or \'bottom\'.');
+    }
+};
+
+module.exports = {
+    // Create a <link> tag with optional data attributes
+    createLink: function(href, attributes) {
+        var head = document.head || document.getElementsByTagName('head')[0];
+        var link = document.createElement('link');
+
+        link.href = href;
+        link.rel = 'stylesheet';
+
+        for (var key in attributes) {
+            if ( ! attributes.hasOwnProperty(key)) {
+                continue;
+            }
+            var value = attributes[key];
+            link.setAttribute('data-' + key, value);
+        }
+
+        head.appendChild(link);
+    },
+    // Create a <style> tag with optional data attributes
+    createStyle: function(cssText, attributes, extraOptions) {
+        extraOptions = extraOptions || {};
+
+        var style = document.createElement('style');
+        style.type = 'text/css';
+
+        for (var key in attributes) {
+            if ( ! attributes.hasOwnProperty(key)) {
+                continue;
+            }
+            var value = attributes[key];
+            style.setAttribute('data-' + key, value);
+        }
+
+        if (style.sheet) { // for jsdom and IE9+
+            style.innerHTML = cssText;
+            style.sheet.cssText = cssText;
+            insertStyleElement(style, { insertAt: extraOptions.insertAt });
+        } else if (style.styleSheet) { // for IE8 and below
+            insertStyleElement(style, { insertAt: extraOptions.insertAt });
+            style.styleSheet.cssText = cssText;
+        } else { // for Chrome, Firefox, and Safari
+            style.appendChild(document.createTextNode(cssText));
+            insertStyleElement(style, { insertAt: extraOptions.insertAt });
+        }
+    }
+};
+
+},{}],14:[function(require,module,exports){
 module.exports = require('./lib/difflib');
 
-},{"./lib/difflib":2}],2:[function(require,module,exports){
+},{"./lib/difflib":15}],15:[function(require,module,exports){
 // Generated by CoffeeScript 2.6.1
 (function() {
   /*
@@ -1693,7 +3312,7 @@ module.exports = require('./lib/difflib');
 
 }).call(this);
 
-},{"assert":66,"heap":161}],3:[function(require,module,exports){
+},{"assert":79,"heap":174}],16:[function(require,module,exports){
 'use strict';
 
 const asn1 = exports;
@@ -1706,7 +3325,7 @@ asn1.constants = require('./asn1/constants');
 asn1.decoders = require('./asn1/decoders');
 asn1.encoders = require('./asn1/encoders');
 
-},{"./asn1/api":4,"./asn1/base":6,"./asn1/constants":10,"./asn1/decoders":12,"./asn1/encoders":15,"bn.js":17}],4:[function(require,module,exports){
+},{"./asn1/api":17,"./asn1/base":19,"./asn1/constants":23,"./asn1/decoders":25,"./asn1/encoders":28,"bn.js":30}],17:[function(require,module,exports){
 'use strict';
 
 const encoders = require('./encoders');
@@ -1765,7 +3384,7 @@ Entity.prototype.encode = function encode(data, enc, /* internal */ reporter) {
   return this._getEncoder(enc).encode(data, reporter);
 };
 
-},{"./decoders":12,"./encoders":15,"inherits":165}],5:[function(require,module,exports){
+},{"./decoders":25,"./encoders":28,"inherits":178}],18:[function(require,module,exports){
 'use strict';
 
 const inherits = require('inherits');
@@ -1920,7 +3539,7 @@ EncoderBuffer.prototype.join = function join(out, offset) {
   return out;
 };
 
-},{"../base/reporter":8,"inherits":165,"safer-buffer":207}],6:[function(require,module,exports){
+},{"../base/reporter":21,"inherits":178,"safer-buffer":220}],19:[function(require,module,exports){
 'use strict';
 
 const base = exports;
@@ -1930,7 +3549,7 @@ base.DecoderBuffer = require('./buffer').DecoderBuffer;
 base.EncoderBuffer = require('./buffer').EncoderBuffer;
 base.Node = require('./node');
 
-},{"./buffer":5,"./node":7,"./reporter":8}],7:[function(require,module,exports){
+},{"./buffer":18,"./node":20,"./reporter":21}],20:[function(require,module,exports){
 'use strict';
 
 const Reporter = require('../base/reporter').Reporter;
@@ -2570,7 +4189,7 @@ Node.prototype._isPrintstr = function isPrintstr(str) {
   return /^[A-Za-z0-9 '()+,-./:=?]*$/.test(str);
 };
 
-},{"../base/buffer":5,"../base/reporter":8,"minimalistic-assert":175}],8:[function(require,module,exports){
+},{"../base/buffer":18,"../base/reporter":21,"minimalistic-assert":188}],21:[function(require,module,exports){
 'use strict';
 
 const inherits = require('inherits');
@@ -2695,7 +4314,7 @@ ReporterError.prototype.rethrow = function rethrow(msg) {
   return this;
 };
 
-},{"inherits":165}],9:[function(require,module,exports){
+},{"inherits":178}],22:[function(require,module,exports){
 'use strict';
 
 // Helper
@@ -2755,7 +4374,7 @@ exports.tag = {
 };
 exports.tagByName = reverse(exports.tag);
 
-},{}],10:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 'use strict';
 
 const constants = exports;
@@ -2778,7 +4397,7 @@ constants._reverse = function reverse(map) {
 
 constants.der = require('./der');
 
-},{"./der":9}],11:[function(require,module,exports){
+},{"./der":22}],24:[function(require,module,exports){
 'use strict';
 
 const inherits = require('inherits');
@@ -3115,7 +4734,7 @@ function derDecodeLen(buf, primitive, fail) {
   return len;
 }
 
-},{"../base/buffer":5,"../base/node":7,"../constants/der":9,"bn.js":17,"inherits":165}],12:[function(require,module,exports){
+},{"../base/buffer":18,"../base/node":20,"../constants/der":22,"bn.js":30,"inherits":178}],25:[function(require,module,exports){
 'use strict';
 
 const decoders = exports;
@@ -3123,7 +4742,7 @@ const decoders = exports;
 decoders.der = require('./der');
 decoders.pem = require('./pem');
 
-},{"./der":11,"./pem":13}],13:[function(require,module,exports){
+},{"./der":24,"./pem":26}],26:[function(require,module,exports){
 'use strict';
 
 const inherits = require('inherits');
@@ -3176,7 +4795,7 @@ PEMDecoder.prototype.decode = function decode(data, options) {
   return DERDecoder.prototype.decode.call(this, input, options);
 };
 
-},{"./der":11,"inherits":165,"safer-buffer":207}],14:[function(require,module,exports){
+},{"./der":24,"inherits":178,"safer-buffer":220}],27:[function(require,module,exports){
 'use strict';
 
 const inherits = require('inherits');
@@ -3473,7 +5092,7 @@ function encodeTag(tag, primitive, cls, reporter) {
   return res;
 }
 
-},{"../base/node":7,"../constants/der":9,"inherits":165,"safer-buffer":207}],15:[function(require,module,exports){
+},{"../base/node":20,"../constants/der":22,"inherits":178,"safer-buffer":220}],28:[function(require,module,exports){
 'use strict';
 
 const encoders = exports;
@@ -3481,7 +5100,7 @@ const encoders = exports;
 encoders.der = require('./der');
 encoders.pem = require('./pem');
 
-},{"./der":14,"./pem":16}],16:[function(require,module,exports){
+},{"./der":27,"./pem":29}],29:[function(require,module,exports){
 'use strict';
 
 const inherits = require('inherits');
@@ -3506,7 +5125,7 @@ PEMEncoder.prototype.encode = function encode(data, options) {
   return out.join('\n');
 };
 
-},{"./der":14,"inherits":165}],17:[function(require,module,exports){
+},{"./der":27,"inherits":178}],30:[function(require,module,exports){
 (function (module, exports) {
   'use strict';
 
@@ -6954,7 +8573,7 @@ PEMEncoder.prototype.encode = function encode(data, options) {
   };
 })(typeof module === 'undefined' || module, this);
 
-},{"buffer":22}],18:[function(require,module,exports){
+},{"buffer":35}],31:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -6985,7 +8604,7 @@ module.exports = function availableTypedArrays() {
 };
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],19:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -7137,7 +8756,7 @@ function fromByteArray (uint8) {
   return parts.join('')
 }
 
-},{}],20:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 (function (module, exports) {
   'use strict';
 
@@ -10686,7 +12305,7 @@ function fromByteArray (uint8) {
   };
 })(typeof module === 'undefined' || module, this);
 
-},{"buffer":22}],21:[function(require,module,exports){
+},{"buffer":35}],34:[function(require,module,exports){
 var r;
 
 module.exports = function rand(len) {
@@ -10753,9 +12372,9 @@ if (typeof self === 'object') {
   }
 }
 
-},{"crypto":22}],22:[function(require,module,exports){
+},{"crypto":35}],35:[function(require,module,exports){
 
-},{}],23:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 // based on the aes implimentation in triple sec
 // https://github.com/keybase/triplesec
 // which is in turn based on the one from crypto-js
@@ -10985,7 +12604,7 @@ AES.prototype.scrub = function () {
 
 module.exports.AES = AES
 
-},{"safe-buffer":206}],24:[function(require,module,exports){
+},{"safe-buffer":219}],37:[function(require,module,exports){
 var aes = require('./aes')
 var Buffer = require('safe-buffer').Buffer
 var Transform = require('cipher-base')
@@ -11104,7 +12723,7 @@ StreamCipher.prototype.setAAD = function setAAD (buf) {
 
 module.exports = StreamCipher
 
-},{"./aes":23,"./ghash":28,"./incr32":29,"buffer-xor":71,"cipher-base":74,"inherits":165,"safe-buffer":206}],25:[function(require,module,exports){
+},{"./aes":36,"./ghash":41,"./incr32":42,"buffer-xor":84,"cipher-base":87,"inherits":178,"safe-buffer":219}],38:[function(require,module,exports){
 var ciphers = require('./encrypter')
 var deciphers = require('./decrypter')
 var modes = require('./modes/list.json')
@@ -11119,7 +12738,7 @@ exports.createDecipher = exports.Decipher = deciphers.createDecipher
 exports.createDecipheriv = exports.Decipheriv = deciphers.createDecipheriv
 exports.listCiphers = exports.getCiphers = getCiphers
 
-},{"./decrypter":26,"./encrypter":27,"./modes/list.json":37}],26:[function(require,module,exports){
+},{"./decrypter":39,"./encrypter":40,"./modes/list.json":50}],39:[function(require,module,exports){
 var AuthCipher = require('./authCipher')
 var Buffer = require('safe-buffer').Buffer
 var MODES = require('./modes')
@@ -11245,7 +12864,7 @@ function createDecipher (suite, password) {
 exports.createDecipher = createDecipher
 exports.createDecipheriv = createDecipheriv
 
-},{"./aes":23,"./authCipher":24,"./modes":36,"./streamCipher":39,"cipher-base":74,"evp_bytestokey":122,"inherits":165,"safe-buffer":206}],27:[function(require,module,exports){
+},{"./aes":36,"./authCipher":37,"./modes":49,"./streamCipher":52,"cipher-base":87,"evp_bytestokey":135,"inherits":178,"safe-buffer":219}],40:[function(require,module,exports){
 var MODES = require('./modes')
 var AuthCipher = require('./authCipher')
 var Buffer = require('safe-buffer').Buffer
@@ -11361,7 +12980,7 @@ function createCipher (suite, password) {
 exports.createCipheriv = createCipheriv
 exports.createCipher = createCipher
 
-},{"./aes":23,"./authCipher":24,"./modes":36,"./streamCipher":39,"cipher-base":74,"evp_bytestokey":122,"inherits":165,"safe-buffer":206}],28:[function(require,module,exports){
+},{"./aes":36,"./authCipher":37,"./modes":49,"./streamCipher":52,"cipher-base":87,"evp_bytestokey":135,"inherits":178,"safe-buffer":219}],41:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 var ZEROES = Buffer.alloc(16, 0)
 
@@ -11452,7 +13071,7 @@ GHASH.prototype.final = function (abl, bl) {
 
 module.exports = GHASH
 
-},{"safe-buffer":206}],29:[function(require,module,exports){
+},{"safe-buffer":219}],42:[function(require,module,exports){
 function incr32 (iv) {
   var len = iv.length
   var item
@@ -11469,7 +13088,7 @@ function incr32 (iv) {
 }
 module.exports = incr32
 
-},{}],30:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 var xor = require('buffer-xor')
 
 exports.encrypt = function (self, block) {
@@ -11488,7 +13107,7 @@ exports.decrypt = function (self, block) {
   return xor(out, pad)
 }
 
-},{"buffer-xor":71}],31:[function(require,module,exports){
+},{"buffer-xor":84}],44:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 var xor = require('buffer-xor')
 
@@ -11523,7 +13142,7 @@ exports.encrypt = function (self, data, decrypt) {
   return out
 }
 
-},{"buffer-xor":71,"safe-buffer":206}],32:[function(require,module,exports){
+},{"buffer-xor":84,"safe-buffer":219}],45:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 
 function encryptByte (self, byteParam, decrypt) {
@@ -11567,7 +13186,7 @@ exports.encrypt = function (self, chunk, decrypt) {
   return out
 }
 
-},{"safe-buffer":206}],33:[function(require,module,exports){
+},{"safe-buffer":219}],46:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 
 function encryptByte (self, byteParam, decrypt) {
@@ -11594,7 +13213,7 @@ exports.encrypt = function (self, chunk, decrypt) {
   return out
 }
 
-},{"safe-buffer":206}],34:[function(require,module,exports){
+},{"safe-buffer":219}],47:[function(require,module,exports){
 var xor = require('buffer-xor')
 var Buffer = require('safe-buffer').Buffer
 var incr32 = require('../incr32')
@@ -11626,7 +13245,7 @@ exports.encrypt = function (self, chunk) {
   return xor(chunk, pad)
 }
 
-},{"../incr32":29,"buffer-xor":71,"safe-buffer":206}],35:[function(require,module,exports){
+},{"../incr32":42,"buffer-xor":84,"safe-buffer":219}],48:[function(require,module,exports){
 exports.encrypt = function (self, block) {
   return self._cipher.encryptBlock(block)
 }
@@ -11635,7 +13254,7 @@ exports.decrypt = function (self, block) {
   return self._cipher.decryptBlock(block)
 }
 
-},{}],36:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 var modeModules = {
   ECB: require('./ecb'),
   CBC: require('./cbc'),
@@ -11655,7 +13274,7 @@ for (var key in modes) {
 
 module.exports = modes
 
-},{"./cbc":30,"./cfb":31,"./cfb1":32,"./cfb8":33,"./ctr":34,"./ecb":35,"./list.json":37,"./ofb":38}],37:[function(require,module,exports){
+},{"./cbc":43,"./cfb":44,"./cfb1":45,"./cfb8":46,"./ctr":47,"./ecb":48,"./list.json":50,"./ofb":51}],50:[function(require,module,exports){
 module.exports={
   "aes-128-ecb": {
     "cipher": "AES",
@@ -11848,7 +13467,7 @@ module.exports={
   }
 }
 
-},{}],38:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 (function (Buffer){(function (){
 var xor = require('buffer-xor')
 
@@ -11868,7 +13487,7 @@ exports.encrypt = function (self, chunk) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"buffer":69,"buffer-xor":71}],39:[function(require,module,exports){
+},{"buffer":82,"buffer-xor":84}],52:[function(require,module,exports){
 var aes = require('./aes')
 var Buffer = require('safe-buffer').Buffer
 var Transform = require('cipher-base')
@@ -11897,7 +13516,7 @@ StreamCipher.prototype._final = function () {
 
 module.exports = StreamCipher
 
-},{"./aes":23,"cipher-base":74,"inherits":165,"safe-buffer":206}],40:[function(require,module,exports){
+},{"./aes":36,"cipher-base":87,"inherits":178,"safe-buffer":219}],53:[function(require,module,exports){
 var DES = require('browserify-des')
 var aes = require('browserify-aes/browser')
 var aesModes = require('browserify-aes/modes')
@@ -11966,7 +13585,7 @@ exports.createDecipher = exports.Decipher = createDecipher
 exports.createDecipheriv = exports.Decipheriv = createDecipheriv
 exports.listCiphers = exports.getCiphers = getCiphers
 
-},{"browserify-aes/browser":25,"browserify-aes/modes":36,"browserify-des":41,"browserify-des/modes":42,"evp_bytestokey":122}],41:[function(require,module,exports){
+},{"browserify-aes/browser":38,"browserify-aes/modes":49,"browserify-des":54,"browserify-des/modes":55,"evp_bytestokey":135}],54:[function(require,module,exports){
 var CipherBase = require('cipher-base')
 var des = require('des.js')
 var inherits = require('inherits')
@@ -12018,7 +13637,7 @@ DES.prototype._final = function () {
   return Buffer.from(this._des.final())
 }
 
-},{"cipher-base":74,"des.js":93,"inherits":165,"safe-buffer":206}],42:[function(require,module,exports){
+},{"cipher-base":87,"des.js":106,"inherits":178,"safe-buffer":219}],55:[function(require,module,exports){
 exports['des-ecb'] = {
   key: 8,
   iv: 0
@@ -12044,7 +13663,7 @@ exports['des-ede'] = {
   iv: 0
 }
 
-},{}],43:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 (function (Buffer){(function (){
 var BN = require('bn.js')
 var randomBytes = require('randombytes')
@@ -12083,10 +13702,10 @@ crt.getr = getr
 module.exports = crt
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"bn.js":20,"buffer":69,"randombytes":203}],44:[function(require,module,exports){
+},{"bn.js":33,"buffer":82,"randombytes":216}],57:[function(require,module,exports){
 module.exports = require('./browser/algorithms.json')
 
-},{"./browser/algorithms.json":45}],45:[function(require,module,exports){
+},{"./browser/algorithms.json":58}],58:[function(require,module,exports){
 module.exports={
   "sha224WithRSAEncryption": {
     "sign": "rsa",
@@ -12240,7 +13859,7 @@ module.exports={
   }
 }
 
-},{}],46:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 module.exports={
   "1.3.132.0.10": "secp256k1",
   "1.3.132.0.33": "p224",
@@ -12250,7 +13869,7 @@ module.exports={
   "1.3.132.0.35": "p521"
 }
 
-},{}],47:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 var createHash = require('create-hash')
 var stream = require('readable-stream')
@@ -12344,7 +13963,7 @@ module.exports = {
   createVerify: createVerify
 }
 
-},{"./algorithms.json":45,"./sign":48,"./verify":49,"create-hash":88,"inherits":165,"readable-stream":64,"safe-buffer":206}],48:[function(require,module,exports){
+},{"./algorithms.json":58,"./sign":61,"./verify":62,"create-hash":101,"inherits":178,"readable-stream":77,"safe-buffer":219}],61:[function(require,module,exports){
 // much of this based on https://github.com/indutny/self-signed/blob/gh-pages/lib/rsa.js
 var Buffer = require('safe-buffer').Buffer
 var createHmac = require('create-hmac')
@@ -12489,7 +14108,7 @@ module.exports = sign
 module.exports.getKey = getKey
 module.exports.makeKey = makeKey
 
-},{"./curves.json":46,"bn.js":20,"browserify-rsa":43,"create-hmac":90,"elliptic":104,"parse-asn1":187,"safe-buffer":206}],49:[function(require,module,exports){
+},{"./curves.json":59,"bn.js":33,"browserify-rsa":56,"create-hmac":103,"elliptic":117,"parse-asn1":200,"safe-buffer":219}],62:[function(require,module,exports){
 // much of this based on https://github.com/indutny/self-signed/blob/gh-pages/lib/rsa.js
 var Buffer = require('safe-buffer').Buffer
 var BN = require('bn.js')
@@ -12575,7 +14194,7 @@ function checkValue (b, q) {
 
 module.exports = verify
 
-},{"./curves.json":46,"bn.js":20,"elliptic":104,"parse-asn1":187,"safe-buffer":206}],50:[function(require,module,exports){
+},{"./curves.json":59,"bn.js":33,"elliptic":117,"parse-asn1":200,"safe-buffer":219}],63:[function(require,module,exports){
 'use strict';
 
 function _inheritsLoose(subClass, superClass) { subClass.prototype = Object.create(superClass.prototype); subClass.prototype.constructor = subClass; subClass.__proto__ = superClass; }
@@ -12704,7 +14323,7 @@ createErrorType('ERR_UNKNOWN_ENCODING', function (arg) {
 createErrorType('ERR_STREAM_UNSHIFT_AFTER_END_EVENT', 'stream.unshift() after end event');
 module.exports.codes = codes;
 
-},{}],51:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 (function (process){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -12833,7 +14452,7 @@ Object.defineProperty(Duplex.prototype, 'destroyed', {
   }
 });
 }).call(this)}).call(this,require('_process'))
-},{"./_stream_readable":53,"./_stream_writable":55,"_process":195,"inherits":165}],52:[function(require,module,exports){
+},{"./_stream_readable":66,"./_stream_writable":68,"_process":208,"inherits":178}],65:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -12871,7 +14490,7 @@ function PassThrough(options) {
 PassThrough.prototype._transform = function (chunk, encoding, cb) {
   cb(null, chunk);
 };
-},{"./_stream_transform":54,"inherits":165}],53:[function(require,module,exports){
+},{"./_stream_transform":67,"inherits":178}],66:[function(require,module,exports){
 (function (process,global){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -13901,7 +15520,7 @@ function indexOf(xs, x) {
   return -1;
 }
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../errors":50,"./_stream_duplex":51,"./internal/streams/async_iterator":56,"./internal/streams/buffer_list":57,"./internal/streams/destroy":58,"./internal/streams/from":60,"./internal/streams/state":62,"./internal/streams/stream":63,"_process":195,"buffer":69,"events":121,"inherits":165,"string_decoder/":231,"util":22}],54:[function(require,module,exports){
+},{"../errors":63,"./_stream_duplex":64,"./internal/streams/async_iterator":69,"./internal/streams/buffer_list":70,"./internal/streams/destroy":71,"./internal/streams/from":73,"./internal/streams/state":75,"./internal/streams/stream":76,"_process":208,"buffer":82,"events":134,"inherits":178,"string_decoder/":244,"util":35}],67:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -14092,7 +15711,7 @@ function done(stream, er, data) {
   if (stream._transformState.transforming) throw new ERR_TRANSFORM_ALREADY_TRANSFORMING();
   return stream.push(null);
 }
-},{"../errors":50,"./_stream_duplex":51,"inherits":165}],55:[function(require,module,exports){
+},{"../errors":63,"./_stream_duplex":64,"inherits":178}],68:[function(require,module,exports){
 (function (process,global){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -14736,7 +16355,7 @@ Writable.prototype._destroy = function (err, cb) {
   cb(err);
 };
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../errors":50,"./_stream_duplex":51,"./internal/streams/destroy":58,"./internal/streams/state":62,"./internal/streams/stream":63,"_process":195,"buffer":69,"inherits":165,"util-deprecate":232}],56:[function(require,module,exports){
+},{"../errors":63,"./_stream_duplex":64,"./internal/streams/destroy":71,"./internal/streams/state":75,"./internal/streams/stream":76,"_process":208,"buffer":82,"inherits":178,"util-deprecate":245}],69:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -14919,7 +16538,7 @@ var createReadableStreamAsyncIterator = function createReadableStreamAsyncIterat
 };
 module.exports = createReadableStreamAsyncIterator;
 }).call(this)}).call(this,require('_process'))
-},{"./end-of-stream":59,"_process":195}],57:[function(require,module,exports){
+},{"./end-of-stream":72,"_process":208}],70:[function(require,module,exports){
 'use strict';
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
@@ -15103,7 +16722,7 @@ module.exports = /*#__PURE__*/function () {
   }]);
   return BufferList;
 }();
-},{"buffer":69,"util":22}],58:[function(require,module,exports){
+},{"buffer":82,"util":35}],71:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -15202,7 +16821,7 @@ module.exports = {
   errorOrDestroy: errorOrDestroy
 };
 }).call(this)}).call(this,require('_process'))
-},{"_process":195}],59:[function(require,module,exports){
+},{"_process":208}],72:[function(require,module,exports){
 // Ported from https://github.com/mafintosh/end-of-stream with
 // permission from the author, Mathias Buus (@mafintosh).
 
@@ -15289,12 +16908,12 @@ function eos(stream, opts, callback) {
   };
 }
 module.exports = eos;
-},{"../../../errors":50}],60:[function(require,module,exports){
+},{"../../../errors":63}],73:[function(require,module,exports){
 module.exports = function () {
   throw new Error('Readable.from is not available in the browser')
 };
 
-},{}],61:[function(require,module,exports){
+},{}],74:[function(require,module,exports){
 // Ported from https://github.com/mafintosh/pump with
 // permission from the author, Mathias Buus (@mafintosh).
 
@@ -15381,7 +17000,7 @@ function pipeline() {
   return streams.reduce(pipe);
 }
 module.exports = pipeline;
-},{"../../../errors":50,"./end-of-stream":59}],62:[function(require,module,exports){
+},{"../../../errors":63,"./end-of-stream":72}],75:[function(require,module,exports){
 'use strict';
 
 var ERR_INVALID_OPT_VALUE = require('../../../errors').codes.ERR_INVALID_OPT_VALUE;
@@ -15404,10 +17023,10 @@ function getHighWaterMark(state, options, duplexKey, isDuplex) {
 module.exports = {
   getHighWaterMark: getHighWaterMark
 };
-},{"../../../errors":50}],63:[function(require,module,exports){
+},{"../../../errors":63}],76:[function(require,module,exports){
 module.exports = require('events').EventEmitter;
 
-},{"events":121}],64:[function(require,module,exports){
+},{"events":134}],77:[function(require,module,exports){
 exports = module.exports = require('./lib/_stream_readable.js');
 exports.Stream = exports;
 exports.Readable = exports;
@@ -15418,9 +17037,9 @@ exports.PassThrough = require('./lib/_stream_passthrough.js');
 exports.finished = require('./lib/internal/streams/end-of-stream.js');
 exports.pipeline = require('./lib/internal/streams/pipeline.js');
 
-},{"./lib/_stream_duplex.js":51,"./lib/_stream_passthrough.js":52,"./lib/_stream_readable.js":53,"./lib/_stream_transform.js":54,"./lib/_stream_writable.js":55,"./lib/internal/streams/end-of-stream.js":59,"./lib/internal/streams/pipeline.js":61}],65:[function(require,module,exports){
-arguments[4][22][0].apply(exports,arguments)
-},{"dup":22}],66:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":64,"./lib/_stream_passthrough.js":65,"./lib/_stream_readable.js":66,"./lib/_stream_transform.js":67,"./lib/_stream_writable.js":68,"./lib/internal/streams/end-of-stream.js":72,"./lib/internal/streams/pipeline.js":74}],78:[function(require,module,exports){
+arguments[4][35][0].apply(exports,arguments)
+},{"dup":35}],79:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -15930,14 +17549,14 @@ var objectKeys = Object.keys || function (obj) {
 };
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"object.assign/polyfill":181,"util/":68}],67:[function(require,module,exports){
+},{"object.assign/polyfill":194,"util/":81}],80:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],68:[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 (function (process,global){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -16527,7 +18146,7 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":67,"_process":195,"inherits":70}],69:[function(require,module,exports){
+},{"./support/isBuffer":80,"_process":208,"inherits":83}],82:[function(require,module,exports){
 (function (Buffer){(function (){
 /*!
  * The buffer module from node.js, for the browser.
@@ -18308,7 +19927,7 @@ function numberIsNaN (obj) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"base64-js":19,"buffer":69,"ieee754":164}],70:[function(require,module,exports){
+},{"base64-js":32,"buffer":82,"ieee754":177}],83:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -18333,7 +19952,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],71:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
 (function (Buffer){(function (){
 module.exports = function xor (a, b) {
   var length = Math.min(a.length, b.length)
@@ -18347,7 +19966,7 @@ module.exports = function xor (a, b) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"buffer":69}],72:[function(require,module,exports){
+},{"buffer":82}],85:[function(require,module,exports){
 'use strict';
 
 var GetIntrinsic = require('get-intrinsic');
@@ -18364,7 +19983,7 @@ module.exports = function callBoundIntrinsic(name, allowMissing) {
 	return intrinsic;
 };
 
-},{"./":73,"get-intrinsic":126}],73:[function(require,module,exports){
+},{"./":86,"get-intrinsic":139}],86:[function(require,module,exports){
 'use strict';
 
 var bind = require('function-bind');
@@ -18413,7 +20032,7 @@ if ($defineProperty) {
 	module.exports.apply = applyBind;
 }
 
-},{"function-bind":125,"get-intrinsic":126}],74:[function(require,module,exports){
+},{"function-bind":138,"get-intrinsic":139}],87:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 var Transform = require('stream').Transform
 var StringDecoder = require('string_decoder').StringDecoder
@@ -18514,7 +20133,7 @@ CipherBase.prototype._toString = function (value, enc, fin) {
 
 module.exports = CipherBase
 
-},{"inherits":165,"safe-buffer":206,"stream":216,"string_decoder":231}],75:[function(require,module,exports){
+},{"inherits":178,"safe-buffer":219,"stream":229,"string_decoder":244}],88:[function(require,module,exports){
 /*
 
 The MIT License (MIT)
@@ -18727,7 +20346,7 @@ for (var map in colors.maps) {
 
 defineProps(colors, init());
 
-},{"./custom/trap":76,"./custom/zalgo":77,"./maps/america":78,"./maps/rainbow":79,"./maps/random":80,"./maps/zebra":81,"./styles":82,"./system/supports-colors":84,"util":235}],76:[function(require,module,exports){
+},{"./custom/trap":89,"./custom/zalgo":90,"./maps/america":91,"./maps/rainbow":92,"./maps/random":93,"./maps/zebra":94,"./styles":95,"./system/supports-colors":97,"util":248}],89:[function(require,module,exports){
 module['exports'] = function runTheTrap(text, options) {
   var result = '';
   text = text || 'Run the trap, drop the bass';
@@ -18775,7 +20394,7 @@ module['exports'] = function runTheTrap(text, options) {
   return result;
 };
 
-},{}],77:[function(require,module,exports){
+},{}],90:[function(require,module,exports){
 // please no
 module['exports'] = function zalgo(text, options) {
   text = text || '   he is here   ';
@@ -18887,7 +20506,7 @@ module['exports'] = function zalgo(text, options) {
 };
 
 
-},{}],78:[function(require,module,exports){
+},{}],91:[function(require,module,exports){
 module['exports'] = function(colors) {
   return function(letter, i, exploded) {
     if (letter === ' ') return letter;
@@ -18899,7 +20518,7 @@ module['exports'] = function(colors) {
   };
 };
 
-},{}],79:[function(require,module,exports){
+},{}],92:[function(require,module,exports){
 module['exports'] = function(colors) {
   // RoY G BiV
   var rainbowColors = ['red', 'yellow', 'green', 'blue', 'magenta'];
@@ -18913,7 +20532,7 @@ module['exports'] = function(colors) {
 };
 
 
-},{}],80:[function(require,module,exports){
+},{}],93:[function(require,module,exports){
 module['exports'] = function(colors) {
   var available = ['underline', 'inverse', 'grey', 'yellow', 'red', 'green',
     'blue', 'white', 'cyan', 'magenta', 'brightYellow', 'brightRed',
@@ -18926,14 +20545,14 @@ module['exports'] = function(colors) {
   };
 };
 
-},{}],81:[function(require,module,exports){
+},{}],94:[function(require,module,exports){
 module['exports'] = function(colors) {
   return function(letter, i, exploded) {
     return i % 2 === 0 ? letter : colors.inverse(letter);
   };
 };
 
-},{}],82:[function(require,module,exports){
+},{}],95:[function(require,module,exports){
 /*
 The MIT License (MIT)
 
@@ -19030,7 +20649,7 @@ Object.keys(codes).forEach(function(key) {
   style.close = '\u001b[' + val[1] + 'm';
 });
 
-},{}],83:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 (function (process){(function (){
 /*
 MIT License
@@ -19069,7 +20688,7 @@ module.exports = function(flag, argv) {
 };
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":195}],84:[function(require,module,exports){
+},{"_process":208}],97:[function(require,module,exports){
 (function (process){(function (){
 /*
 The MIT License (MIT)
@@ -19224,7 +20843,7 @@ module.exports = {
 };
 
 }).call(this)}).call(this,require('_process'))
-},{"./has-flag.js":83,"_process":195,"os":182}],85:[function(require,module,exports){
+},{"./has-flag.js":96,"_process":208,"os":195}],98:[function(require,module,exports){
 //
 // Remark: Requiring this file will use the "safe" colors API,
 // which will not touch String.prototype.
@@ -19236,7 +20855,7 @@ module.exports = {
 var colors = require('./lib/colors');
 module['exports'] = colors;
 
-},{"./lib/colors":75}],86:[function(require,module,exports){
+},{"./lib/colors":88}],99:[function(require,module,exports){
 (function (Buffer){(function (){
 var elliptic = require('elliptic')
 var BN = require('bn.js')
@@ -19364,9 +20983,9 @@ function formatReturnValue (bn, enc, len) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"bn.js":87,"buffer":69,"elliptic":104}],87:[function(require,module,exports){
-arguments[4][17][0].apply(exports,arguments)
-},{"buffer":22,"dup":17}],88:[function(require,module,exports){
+},{"bn.js":100,"buffer":82,"elliptic":117}],100:[function(require,module,exports){
+arguments[4][30][0].apply(exports,arguments)
+},{"buffer":35,"dup":30}],101:[function(require,module,exports){
 'use strict'
 var inherits = require('inherits')
 var MD5 = require('md5.js')
@@ -19398,14 +21017,14 @@ module.exports = function createHash (alg) {
   return new Hash(sha(alg))
 }
 
-},{"cipher-base":74,"inherits":165,"md5.js":172,"ripemd160":205,"sha.js":209}],89:[function(require,module,exports){
+},{"cipher-base":87,"inherits":178,"md5.js":185,"ripemd160":218,"sha.js":222}],102:[function(require,module,exports){
 var MD5 = require('md5.js')
 
 module.exports = function (buffer) {
   return new MD5().update(buffer).digest()
 }
 
-},{"md5.js":172}],90:[function(require,module,exports){
+},{"md5.js":185}],103:[function(require,module,exports){
 'use strict'
 var inherits = require('inherits')
 var Legacy = require('./legacy')
@@ -19469,7 +21088,7 @@ module.exports = function createHmac (alg, key) {
   return new Hmac(alg, key)
 }
 
-},{"./legacy":91,"cipher-base":74,"create-hash/md5":89,"inherits":165,"ripemd160":205,"safe-buffer":206,"sha.js":209}],91:[function(require,module,exports){
+},{"./legacy":104,"cipher-base":87,"create-hash/md5":102,"inherits":178,"ripemd160":218,"safe-buffer":219,"sha.js":222}],104:[function(require,module,exports){
 'use strict'
 var inherits = require('inherits')
 var Buffer = require('safe-buffer').Buffer
@@ -19517,7 +21136,7 @@ Hmac.prototype._final = function () {
 }
 module.exports = Hmac
 
-},{"cipher-base":74,"inherits":165,"safe-buffer":206}],92:[function(require,module,exports){
+},{"cipher-base":87,"inherits":178,"safe-buffer":219}],105:[function(require,module,exports){
 'use strict'
 
 exports.randomBytes = exports.rng = exports.pseudoRandomBytes = exports.prng = require('randombytes')
@@ -19616,7 +21235,7 @@ exports.constants = {
   'POINT_CONVERSION_HYBRID': 6
 }
 
-},{"browserify-cipher":40,"browserify-sign":47,"browserify-sign/algos":44,"create-ecdh":86,"create-hash":88,"create-hmac":90,"diffie-hellman":99,"pbkdf2":189,"public-encrypt":196,"randombytes":203,"randomfill":204}],93:[function(require,module,exports){
+},{"browserify-cipher":53,"browserify-sign":60,"browserify-sign/algos":57,"create-ecdh":99,"create-hash":101,"create-hmac":103,"diffie-hellman":112,"pbkdf2":202,"public-encrypt":209,"randombytes":216,"randomfill":217}],106:[function(require,module,exports){
 'use strict';
 
 exports.utils = require('./des/utils');
@@ -19625,7 +21244,7 @@ exports.DES = require('./des/des');
 exports.CBC = require('./des/cbc');
 exports.EDE = require('./des/ede');
 
-},{"./des/cbc":94,"./des/cipher":95,"./des/des":96,"./des/ede":97,"./des/utils":98}],94:[function(require,module,exports){
+},{"./des/cbc":107,"./des/cipher":108,"./des/des":109,"./des/ede":110,"./des/utils":111}],107:[function(require,module,exports){
 'use strict';
 
 var assert = require('minimalistic-assert');
@@ -19692,7 +21311,7 @@ proto._update = function _update(inp, inOff, out, outOff) {
   }
 };
 
-},{"inherits":165,"minimalistic-assert":175}],95:[function(require,module,exports){
+},{"inherits":178,"minimalistic-assert":188}],108:[function(require,module,exports){
 'use strict';
 
 var assert = require('minimalistic-assert');
@@ -19835,7 +21454,7 @@ Cipher.prototype._finalDecrypt = function _finalDecrypt() {
   return this._unpad(out);
 };
 
-},{"minimalistic-assert":175}],96:[function(require,module,exports){
+},{"minimalistic-assert":188}],109:[function(require,module,exports){
 'use strict';
 
 var assert = require('minimalistic-assert');
@@ -19979,7 +21598,7 @@ DES.prototype._decrypt = function _decrypt(state, lStart, rStart, out, off) {
   utils.rip(l, r, out, off);
 };
 
-},{"./cipher":95,"./utils":98,"inherits":165,"minimalistic-assert":175}],97:[function(require,module,exports){
+},{"./cipher":108,"./utils":111,"inherits":178,"minimalistic-assert":188}],110:[function(require,module,exports){
 'use strict';
 
 var assert = require('minimalistic-assert');
@@ -20035,7 +21654,7 @@ EDE.prototype._update = function _update(inp, inOff, out, outOff) {
 EDE.prototype._pad = DES.prototype._pad;
 EDE.prototype._unpad = DES.prototype._unpad;
 
-},{"./cipher":95,"./des":96,"inherits":165,"minimalistic-assert":175}],98:[function(require,module,exports){
+},{"./cipher":108,"./des":109,"inherits":178,"minimalistic-assert":188}],111:[function(require,module,exports){
 'use strict';
 
 exports.readUInt32BE = function readUInt32BE(bytes, off) {
@@ -20293,7 +21912,7 @@ exports.padSplit = function padSplit(num, size, group) {
   return out.join(' ');
 };
 
-},{}],99:[function(require,module,exports){
+},{}],112:[function(require,module,exports){
 (function (Buffer){(function (){
 var generatePrime = require('./lib/generatePrime')
 var primes = require('./lib/primes.json')
@@ -20339,7 +21958,7 @@ exports.DiffieHellmanGroup = exports.createDiffieHellmanGroup = exports.getDiffi
 exports.createDiffieHellman = exports.DiffieHellman = createDiffieHellman
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"./lib/dh":100,"./lib/generatePrime":101,"./lib/primes.json":102,"buffer":69}],100:[function(require,module,exports){
+},{"./lib/dh":113,"./lib/generatePrime":114,"./lib/primes.json":115,"buffer":82}],113:[function(require,module,exports){
 (function (Buffer){(function (){
 var BN = require('bn.js');
 var MillerRabin = require('miller-rabin');
@@ -20507,7 +22126,7 @@ function formatReturnValue(bn, enc) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"./generatePrime":101,"bn.js":103,"buffer":69,"miller-rabin":173,"randombytes":203}],101:[function(require,module,exports){
+},{"./generatePrime":114,"bn.js":116,"buffer":82,"miller-rabin":186,"randombytes":216}],114:[function(require,module,exports){
 var randomBytes = require('randombytes');
 module.exports = findPrime;
 findPrime.simpleSieve = simpleSieve;
@@ -20614,7 +22233,7 @@ function findPrime(bits, gen) {
 
 }
 
-},{"bn.js":103,"miller-rabin":173,"randombytes":203}],102:[function(require,module,exports){
+},{"bn.js":116,"miller-rabin":186,"randombytes":216}],115:[function(require,module,exports){
 module.exports={
     "modp1": {
         "gen": "02",
@@ -20649,9 +22268,9 @@ module.exports={
         "prime": "ffffffffffffffffc90fdaa22168c234c4c6628b80dc1cd129024e088a67cc74020bbea63b139b22514a08798e3404ddef9519b3cd3a431b302b0a6df25f14374fe1356d6d51c245e485b576625e7ec6f44c42e9a637ed6b0bff5cb6f406b7edee386bfb5a899fa5ae9f24117c4b1fe649286651ece45b3dc2007cb8a163bf0598da48361c55d39a69163fa8fd24cf5f83655d23dca3ad961c62f356208552bb9ed529077096966d670c354e4abc9804f1746c08ca18217c32905e462e36ce3be39e772c180e86039b2783a2ec07a28fb5c55df06f4c52c9de2bcbf6955817183995497cea956ae515d2261898fa051015728e5a8aaac42dad33170d04507a33a85521abdf1cba64ecfb850458dbef0a8aea71575d060c7db3970f85a6e1e4c7abf5ae8cdb0933d71e8c94e04a25619dcee3d2261ad2ee6bf12ffa06d98a0864d87602733ec86a64521f2b18177b200cbbe117577a615d6c770988c0bad946e208e24fa074e5ab3143db5bfce0fd108e4b82d120a92108011a723c12a787e6d788719a10bdba5b2699c327186af4e23c1a946834b6150bda2583e9ca2ad44ce8dbbbc2db04de8ef92e8efc141fbecaa6287c59474e6bc05d99b2964fa090c3a2233ba186515be7ed1f612970cee2d7afb81bdd762170481cd0069127d5b05aa993b4ea988d8fddc186ffb7dc90a6c08f4df435c93402849236c3fab4d27c7026c1d4dcb2602646dec9751e763dba37bdf8ff9406ad9e530ee5db382f413001aeb06a53ed9027d831179727b0865a8918da3edbebcf9b14ed44ce6cbaced4bb1bdb7f1447e6cc254b332051512bd7af426fb8f401378cd2bf5983ca01c64b92ecf032ea15d1721d03f482d7ce6e74fef6d55e702f46980c82b5a84031900b1c9e59e7c97fbec7e8f323a97a7e36cc88be0f1d45b7ff585ac54bd407b22b4154aacc8f6d7ebf48e1d814cc5ed20f8037e0a79715eef29be32806a1d58bb7c5da76f550aa3d8a1fbff0eb19ccb1a313d55cda56c9ec2ef29632387fe8d76e3c0468043e8f663f4860ee12bf2d5b0b7474d6e694f91e6dbe115974a3926f12fee5e438777cb6a932df8cd8bec4d073b931ba3bc832b68d9dd300741fa7bf8afc47ed2576f6936ba424663aab639c5ae4f5683423b4742bf1c978238f16cbe39d652de3fdb8befc848ad922222e04a4037c0713eb57a81a23f0c73473fc646cea306b4bcbc8862f8385ddfa9d4b7fa2c087e879683303ed5bdd3a062b3cf5b3a278a66d2a13f83f44f82ddf310ee074ab6a364597e899a0255dc164f31cc50846851df9ab48195ded7ea1b1d510bd7ee74d73faf36bc31ecfa268359046f4eb879f924009438b481c6cd7889a002ed5ee382bc9190da6fc026e479558e4475677e9aa9e3050e2765694dfc81f56e880b96e7160c980dd98edd3dfffffffffffffffff"
     }
 }
-},{}],103:[function(require,module,exports){
-arguments[4][17][0].apply(exports,arguments)
-},{"buffer":22,"dup":17}],104:[function(require,module,exports){
+},{}],116:[function(require,module,exports){
+arguments[4][30][0].apply(exports,arguments)
+},{"buffer":35,"dup":30}],117:[function(require,module,exports){
 'use strict';
 
 var elliptic = exports;
@@ -20666,7 +22285,7 @@ elliptic.curves = require('./elliptic/curves');
 elliptic.ec = require('./elliptic/ec');
 elliptic.eddsa = require('./elliptic/eddsa');
 
-},{"../package.json":120,"./elliptic/curve":107,"./elliptic/curves":110,"./elliptic/ec":111,"./elliptic/eddsa":114,"./elliptic/utils":118,"brorand":21}],105:[function(require,module,exports){
+},{"../package.json":133,"./elliptic/curve":120,"./elliptic/curves":123,"./elliptic/ec":124,"./elliptic/eddsa":127,"./elliptic/utils":131,"brorand":34}],118:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -21049,7 +22668,7 @@ BasePoint.prototype.dblp = function dblp(k) {
   return r;
 };
 
-},{"../utils":118,"bn.js":119}],106:[function(require,module,exports){
+},{"../utils":131,"bn.js":132}],119:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -21486,7 +23105,7 @@ Point.prototype.eqXToP = function eqXToP(x) {
 Point.prototype.toP = Point.prototype.normalize;
 Point.prototype.mixedAdd = Point.prototype.add;
 
-},{"../utils":118,"./base":105,"bn.js":119,"inherits":165}],107:[function(require,module,exports){
+},{"../utils":131,"./base":118,"bn.js":132,"inherits":178}],120:[function(require,module,exports){
 'use strict';
 
 var curve = exports;
@@ -21496,7 +23115,7 @@ curve.short = require('./short');
 curve.mont = require('./mont');
 curve.edwards = require('./edwards');
 
-},{"./base":105,"./edwards":106,"./mont":108,"./short":109}],108:[function(require,module,exports){
+},{"./base":118,"./edwards":119,"./mont":121,"./short":122}],121:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -21676,7 +23295,7 @@ Point.prototype.getX = function getX() {
   return this.x.fromRed();
 };
 
-},{"../utils":118,"./base":105,"bn.js":119,"inherits":165}],109:[function(require,module,exports){
+},{"../utils":131,"./base":118,"bn.js":132,"inherits":178}],122:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -22616,7 +24235,7 @@ JPoint.prototype.isInfinity = function isInfinity() {
   return this.z.cmpn(0) === 0;
 };
 
-},{"../utils":118,"./base":105,"bn.js":119,"inherits":165}],110:[function(require,module,exports){
+},{"../utils":131,"./base":118,"bn.js":132,"inherits":178}],123:[function(require,module,exports){
 'use strict';
 
 var curves = exports;
@@ -22824,7 +24443,7 @@ defineCurve('secp256k1', {
   ],
 });
 
-},{"./curve":107,"./precomputed/secp256k1":117,"./utils":118,"hash.js":149}],111:[function(require,module,exports){
+},{"./curve":120,"./precomputed/secp256k1":130,"./utils":131,"hash.js":162}],124:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -23069,7 +24688,7 @@ EC.prototype.getKeyRecoveryParam = function(e, signature, Q, enc) {
   throw new Error('Unable to find valid recovery factor');
 };
 
-},{"../curves":110,"../utils":118,"./key":112,"./signature":113,"bn.js":119,"brorand":21,"hmac-drbg":163}],112:[function(require,module,exports){
+},{"../curves":123,"../utils":131,"./key":125,"./signature":126,"bn.js":132,"brorand":34,"hmac-drbg":176}],125:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -23192,7 +24811,7 @@ KeyPair.prototype.inspect = function inspect() {
          ' pub: ' + (this.pub && this.pub.inspect()) + ' >';
 };
 
-},{"../utils":118,"bn.js":119}],113:[function(require,module,exports){
+},{"../utils":131,"bn.js":132}],126:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -23360,7 +24979,7 @@ Signature.prototype.toDER = function toDER(enc) {
   return utils.encode(res, enc);
 };
 
-},{"../utils":118,"bn.js":119}],114:[function(require,module,exports){
+},{"../utils":131,"bn.js":132}],127:[function(require,module,exports){
 'use strict';
 
 var hash = require('hash.js');
@@ -23480,7 +25099,7 @@ EDDSA.prototype.isPoint = function isPoint(val) {
   return val instanceof this.pointClass;
 };
 
-},{"../curves":110,"../utils":118,"./key":115,"./signature":116,"hash.js":149}],115:[function(require,module,exports){
+},{"../curves":123,"../utils":131,"./key":128,"./signature":129,"hash.js":162}],128:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -23577,7 +25196,7 @@ KeyPair.prototype.getPublic = function getPublic(enc) {
 
 module.exports = KeyPair;
 
-},{"../utils":118}],116:[function(require,module,exports){
+},{"../utils":131}],129:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -23644,7 +25263,7 @@ Signature.prototype.toHex = function toHex() {
 
 module.exports = Signature;
 
-},{"../utils":118,"bn.js":119}],117:[function(require,module,exports){
+},{"../utils":131,"bn.js":132}],130:[function(require,module,exports){
 module.exports = {
   doubles: {
     step: 4,
@@ -24426,7 +26045,7 @@ module.exports = {
   },
 };
 
-},{}],118:[function(require,module,exports){
+},{}],131:[function(require,module,exports){
 'use strict';
 
 var utils = exports;
@@ -24547,9 +26166,9 @@ function intFromLE(bytes) {
 utils.intFromLE = intFromLE;
 
 
-},{"bn.js":119,"minimalistic-assert":175,"minimalistic-crypto-utils":176}],119:[function(require,module,exports){
-arguments[4][17][0].apply(exports,arguments)
-},{"buffer":22,"dup":17}],120:[function(require,module,exports){
+},{"bn.js":132,"minimalistic-assert":188,"minimalistic-crypto-utils":189}],132:[function(require,module,exports){
+arguments[4][30][0].apply(exports,arguments)
+},{"buffer":35,"dup":30}],133:[function(require,module,exports){
 module.exports={
   "name": "elliptic",
   "version": "6.5.4",
@@ -24607,7 +26226,7 @@ module.exports={
   }
 }
 
-},{}],121:[function(require,module,exports){
+},{}],134:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -25106,7 +26725,7 @@ function eventTargetAgnosticAddListener(emitter, name, listener, flags) {
   }
 }
 
-},{}],122:[function(require,module,exports){
+},{}],135:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 var MD5 = require('md5.js')
 
@@ -25153,7 +26772,7 @@ function EVP_BytesToKey (password, salt, keyBits, ivLen) {
 
 module.exports = EVP_BytesToKey
 
-},{"md5.js":172,"safe-buffer":206}],123:[function(require,module,exports){
+},{"md5.js":185,"safe-buffer":219}],136:[function(require,module,exports){
 'use strict';
 
 var isCallable = require('is-callable');
@@ -25217,7 +26836,7 @@ var forEach = function forEach(list, iterator, thisArg) {
 
 module.exports = forEach;
 
-},{"is-callable":167}],124:[function(require,module,exports){
+},{"is-callable":180}],137:[function(require,module,exports){
 'use strict';
 
 /* eslint no-invalid-this: 1 */
@@ -25271,14 +26890,14 @@ module.exports = function bind(that) {
     return bound;
 };
 
-},{}],125:[function(require,module,exports){
+},{}],138:[function(require,module,exports){
 'use strict';
 
 var implementation = require('./implementation');
 
 module.exports = Function.prototype.bind || implementation;
 
-},{"./implementation":124}],126:[function(require,module,exports){
+},{"./implementation":137}],139:[function(require,module,exports){
 'use strict';
 
 var undefined;
@@ -25631,7 +27250,7 @@ module.exports = function GetIntrinsic(name, allowMissing) {
 	return value;
 };
 
-},{"function-bind":125,"has":132,"has-proto":128,"has-symbols":129}],127:[function(require,module,exports){
+},{"function-bind":138,"has":145,"has-proto":141,"has-symbols":142}],140:[function(require,module,exports){
 'use strict';
 
 var GetIntrinsic = require('get-intrinsic');
@@ -25649,7 +27268,7 @@ if ($gOPD) {
 
 module.exports = $gOPD;
 
-},{"get-intrinsic":126}],128:[function(require,module,exports){
+},{"get-intrinsic":139}],141:[function(require,module,exports){
 'use strict';
 
 var test = {
@@ -25662,7 +27281,7 @@ module.exports = function hasProto() {
 	return { __proto__: test }.foo === test.foo && !({ __proto__: null } instanceof $Object);
 };
 
-},{}],129:[function(require,module,exports){
+},{}],142:[function(require,module,exports){
 'use strict';
 
 var origSymbol = typeof Symbol !== 'undefined' && Symbol;
@@ -25677,7 +27296,7 @@ module.exports = function hasNativeSymbols() {
 	return hasSymbolSham();
 };
 
-},{"./shams":130}],130:[function(require,module,exports){
+},{"./shams":143}],143:[function(require,module,exports){
 'use strict';
 
 /* eslint complexity: [2, 18], max-statements: [2, 33] */
@@ -25721,7 +27340,7 @@ module.exports = function hasSymbols() {
 	return true;
 };
 
-},{}],131:[function(require,module,exports){
+},{}],144:[function(require,module,exports){
 'use strict';
 
 var hasSymbols = require('has-symbols/shams');
@@ -25730,14 +27349,14 @@ module.exports = function hasToStringTagShams() {
 	return hasSymbols() && !!Symbol.toStringTag;
 };
 
-},{"has-symbols/shams":130}],132:[function(require,module,exports){
+},{"has-symbols/shams":143}],145:[function(require,module,exports){
 'use strict';
 
 var bind = require('function-bind');
 
 module.exports = bind.call(Function.call, Object.prototype.hasOwnProperty);
 
-},{"function-bind":125}],133:[function(require,module,exports){
+},{"function-bind":138}],146:[function(require,module,exports){
 'use strict'
 var Buffer = require('safe-buffer').Buffer
 var Transform = require('readable-stream').Transform
@@ -25834,37 +27453,37 @@ HashBase.prototype._digest = function () {
 
 module.exports = HashBase
 
-},{"inherits":165,"readable-stream":148,"safe-buffer":206}],134:[function(require,module,exports){
-arguments[4][50][0].apply(exports,arguments)
-},{"dup":50}],135:[function(require,module,exports){
-arguments[4][51][0].apply(exports,arguments)
-},{"./_stream_readable":137,"./_stream_writable":139,"_process":195,"dup":51,"inherits":165}],136:[function(require,module,exports){
-arguments[4][52][0].apply(exports,arguments)
-},{"./_stream_transform":138,"dup":52,"inherits":165}],137:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"../errors":134,"./_stream_duplex":135,"./internal/streams/async_iterator":140,"./internal/streams/buffer_list":141,"./internal/streams/destroy":142,"./internal/streams/from":144,"./internal/streams/state":146,"./internal/streams/stream":147,"_process":195,"buffer":69,"dup":53,"events":121,"inherits":165,"string_decoder/":231,"util":22}],138:[function(require,module,exports){
-arguments[4][54][0].apply(exports,arguments)
-},{"../errors":134,"./_stream_duplex":135,"dup":54,"inherits":165}],139:[function(require,module,exports){
-arguments[4][55][0].apply(exports,arguments)
-},{"../errors":134,"./_stream_duplex":135,"./internal/streams/destroy":142,"./internal/streams/state":146,"./internal/streams/stream":147,"_process":195,"buffer":69,"dup":55,"inherits":165,"util-deprecate":232}],140:[function(require,module,exports){
-arguments[4][56][0].apply(exports,arguments)
-},{"./end-of-stream":143,"_process":195,"dup":56}],141:[function(require,module,exports){
-arguments[4][57][0].apply(exports,arguments)
-},{"buffer":69,"dup":57,"util":22}],142:[function(require,module,exports){
-arguments[4][58][0].apply(exports,arguments)
-},{"_process":195,"dup":58}],143:[function(require,module,exports){
-arguments[4][59][0].apply(exports,arguments)
-},{"../../../errors":134,"dup":59}],144:[function(require,module,exports){
-arguments[4][60][0].apply(exports,arguments)
-},{"dup":60}],145:[function(require,module,exports){
-arguments[4][61][0].apply(exports,arguments)
-},{"../../../errors":134,"./end-of-stream":143,"dup":61}],146:[function(require,module,exports){
-arguments[4][62][0].apply(exports,arguments)
-},{"../../../errors":134,"dup":62}],147:[function(require,module,exports){
+},{"inherits":178,"readable-stream":161,"safe-buffer":219}],147:[function(require,module,exports){
 arguments[4][63][0].apply(exports,arguments)
-},{"dup":63,"events":121}],148:[function(require,module,exports){
+},{"dup":63}],148:[function(require,module,exports){
 arguments[4][64][0].apply(exports,arguments)
-},{"./lib/_stream_duplex.js":135,"./lib/_stream_passthrough.js":136,"./lib/_stream_readable.js":137,"./lib/_stream_transform.js":138,"./lib/_stream_writable.js":139,"./lib/internal/streams/end-of-stream.js":143,"./lib/internal/streams/pipeline.js":145,"dup":64}],149:[function(require,module,exports){
+},{"./_stream_readable":150,"./_stream_writable":152,"_process":208,"dup":64,"inherits":178}],149:[function(require,module,exports){
+arguments[4][65][0].apply(exports,arguments)
+},{"./_stream_transform":151,"dup":65,"inherits":178}],150:[function(require,module,exports){
+arguments[4][66][0].apply(exports,arguments)
+},{"../errors":147,"./_stream_duplex":148,"./internal/streams/async_iterator":153,"./internal/streams/buffer_list":154,"./internal/streams/destroy":155,"./internal/streams/from":157,"./internal/streams/state":159,"./internal/streams/stream":160,"_process":208,"buffer":82,"dup":66,"events":134,"inherits":178,"string_decoder/":244,"util":35}],151:[function(require,module,exports){
+arguments[4][67][0].apply(exports,arguments)
+},{"../errors":147,"./_stream_duplex":148,"dup":67,"inherits":178}],152:[function(require,module,exports){
+arguments[4][68][0].apply(exports,arguments)
+},{"../errors":147,"./_stream_duplex":148,"./internal/streams/destroy":155,"./internal/streams/state":159,"./internal/streams/stream":160,"_process":208,"buffer":82,"dup":68,"inherits":178,"util-deprecate":245}],153:[function(require,module,exports){
+arguments[4][69][0].apply(exports,arguments)
+},{"./end-of-stream":156,"_process":208,"dup":69}],154:[function(require,module,exports){
+arguments[4][70][0].apply(exports,arguments)
+},{"buffer":82,"dup":70,"util":35}],155:[function(require,module,exports){
+arguments[4][71][0].apply(exports,arguments)
+},{"_process":208,"dup":71}],156:[function(require,module,exports){
+arguments[4][72][0].apply(exports,arguments)
+},{"../../../errors":147,"dup":72}],157:[function(require,module,exports){
+arguments[4][73][0].apply(exports,arguments)
+},{"dup":73}],158:[function(require,module,exports){
+arguments[4][74][0].apply(exports,arguments)
+},{"../../../errors":147,"./end-of-stream":156,"dup":74}],159:[function(require,module,exports){
+arguments[4][75][0].apply(exports,arguments)
+},{"../../../errors":147,"dup":75}],160:[function(require,module,exports){
+arguments[4][76][0].apply(exports,arguments)
+},{"dup":76,"events":134}],161:[function(require,module,exports){
+arguments[4][77][0].apply(exports,arguments)
+},{"./lib/_stream_duplex.js":148,"./lib/_stream_passthrough.js":149,"./lib/_stream_readable.js":150,"./lib/_stream_transform.js":151,"./lib/_stream_writable.js":152,"./lib/internal/streams/end-of-stream.js":156,"./lib/internal/streams/pipeline.js":158,"dup":77}],162:[function(require,module,exports){
 var hash = exports;
 
 hash.utils = require('./hash/utils');
@@ -25881,7 +27500,7 @@ hash.sha384 = hash.sha.sha384;
 hash.sha512 = hash.sha.sha512;
 hash.ripemd160 = hash.ripemd.ripemd160;
 
-},{"./hash/common":150,"./hash/hmac":151,"./hash/ripemd":152,"./hash/sha":153,"./hash/utils":160}],150:[function(require,module,exports){
+},{"./hash/common":163,"./hash/hmac":164,"./hash/ripemd":165,"./hash/sha":166,"./hash/utils":173}],163:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -25975,7 +27594,7 @@ BlockHash.prototype._pad = function pad() {
   return res;
 };
 
-},{"./utils":160,"minimalistic-assert":175}],151:[function(require,module,exports){
+},{"./utils":173,"minimalistic-assert":188}],164:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -26024,7 +27643,7 @@ Hmac.prototype.digest = function digest(enc) {
   return this.outer.digest(enc);
 };
 
-},{"./utils":160,"minimalistic-assert":175}],152:[function(require,module,exports){
+},{"./utils":173,"minimalistic-assert":188}],165:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -26172,7 +27791,7 @@ var sh = [
   8, 5, 12, 9, 12, 5, 14, 6, 8, 13, 6, 5, 15, 13, 11, 11
 ];
 
-},{"./common":150,"./utils":160}],153:[function(require,module,exports){
+},{"./common":163,"./utils":173}],166:[function(require,module,exports){
 'use strict';
 
 exports.sha1 = require('./sha/1');
@@ -26181,7 +27800,7 @@ exports.sha256 = require('./sha/256');
 exports.sha384 = require('./sha/384');
 exports.sha512 = require('./sha/512');
 
-},{"./sha/1":154,"./sha/224":155,"./sha/256":156,"./sha/384":157,"./sha/512":158}],154:[function(require,module,exports){
+},{"./sha/1":167,"./sha/224":168,"./sha/256":169,"./sha/384":170,"./sha/512":171}],167:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -26257,7 +27876,7 @@ SHA1.prototype._digest = function digest(enc) {
     return utils.split32(this.h, 'big');
 };
 
-},{"../common":150,"../utils":160,"./common":159}],155:[function(require,module,exports){
+},{"../common":163,"../utils":173,"./common":172}],168:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -26289,7 +27908,7 @@ SHA224.prototype._digest = function digest(enc) {
 };
 
 
-},{"../utils":160,"./256":156}],156:[function(require,module,exports){
+},{"../utils":173,"./256":169}],169:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -26396,7 +28015,7 @@ SHA256.prototype._digest = function digest(enc) {
     return utils.split32(this.h, 'big');
 };
 
-},{"../common":150,"../utils":160,"./common":159,"minimalistic-assert":175}],157:[function(require,module,exports){
+},{"../common":163,"../utils":173,"./common":172,"minimalistic-assert":188}],170:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -26433,7 +28052,7 @@ SHA384.prototype._digest = function digest(enc) {
     return utils.split32(this.h.slice(0, 12), 'big');
 };
 
-},{"../utils":160,"./512":158}],158:[function(require,module,exports){
+},{"../utils":173,"./512":171}],171:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -26765,7 +28384,7 @@ function g1_512_lo(xh, xl) {
   return r;
 }
 
-},{"../common":150,"../utils":160,"minimalistic-assert":175}],159:[function(require,module,exports){
+},{"../common":163,"../utils":173,"minimalistic-assert":188}],172:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -26816,7 +28435,7 @@ function g1_256(x) {
 }
 exports.g1_256 = g1_256;
 
-},{"../utils":160}],160:[function(require,module,exports){
+},{"../utils":173}],173:[function(require,module,exports){
 'use strict';
 
 var assert = require('minimalistic-assert');
@@ -27096,10 +28715,10 @@ function shr64_lo(ah, al, num) {
 }
 exports.shr64_lo = shr64_lo;
 
-},{"inherits":165,"minimalistic-assert":175}],161:[function(require,module,exports){
+},{"inherits":178,"minimalistic-assert":188}],174:[function(require,module,exports){
 module.exports = require('./lib/heap');
 
-},{"./lib/heap":162}],162:[function(require,module,exports){
+},{"./lib/heap":175}],175:[function(require,module,exports){
 // Generated by CoffeeScript 1.8.0
 (function() {
   var Heap, defaultCmp, floor, heapify, heappop, heappush, heappushpop, heapreplace, insort, min, nlargest, nsmallest, updateItem, _siftdown, _siftup;
@@ -27476,7 +29095,7 @@ module.exports = require('./lib/heap');
 
 }).call(this);
 
-},{}],163:[function(require,module,exports){
+},{}],176:[function(require,module,exports){
 'use strict';
 
 var hash = require('hash.js');
@@ -27591,7 +29210,7 @@ HmacDRBG.prototype.generate = function generate(len, enc, add, addEnc) {
   return utils.encode(res, enc);
 };
 
-},{"hash.js":149,"minimalistic-assert":175,"minimalistic-crypto-utils":176}],164:[function(require,module,exports){
+},{"hash.js":162,"minimalistic-assert":188,"minimalistic-crypto-utils":189}],177:[function(require,module,exports){
 /*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
@@ -27678,7 +29297,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],165:[function(require,module,exports){
+},{}],178:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -27707,7 +29326,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],166:[function(require,module,exports){
+},{}],179:[function(require,module,exports){
 'use strict';
 
 var hasToStringTag = require('has-tostringtag/shams')();
@@ -27742,7 +29361,7 @@ isStandardArguments.isLegacyArguments = isLegacyArguments; // for tests
 
 module.exports = supportsStandardArguments ? isStandardArguments : isLegacyArguments;
 
-},{"call-bind/callBound":72,"has-tostringtag/shams":131}],167:[function(require,module,exports){
+},{"call-bind/callBound":85,"has-tostringtag/shams":144}],180:[function(require,module,exports){
 'use strict';
 
 var fnToStr = Function.prototype.toString;
@@ -27845,7 +29464,7 @@ module.exports = reflectApply
 		return tryFunctionObject(value);
 	};
 
-},{}],168:[function(require,module,exports){
+},{}],181:[function(require,module,exports){
 'use strict';
 
 var toStr = Object.prototype.toString;
@@ -27885,7 +29504,7 @@ module.exports = function isGeneratorFunction(fn) {
 	return getProto(fn) === GeneratorFunction;
 };
 
-},{"has-tostringtag/shams":131}],169:[function(require,module,exports){
+},{"has-tostringtag/shams":144}],182:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -27949,7 +29568,7 @@ module.exports = function isTypedArray(value) {
 };
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"available-typed-arrays":18,"call-bind/callBound":72,"for-each":123,"gopd":127,"has-tostringtag/shams":131}],170:[function(require,module,exports){
+},{"available-typed-arrays":31,"call-bind/callBound":85,"for-each":136,"gopd":140,"has-tostringtag/shams":144}],183:[function(require,module,exports){
 const color = require('colors/safe')
 
 const { extendedTypeOf } = require('./util')
@@ -28068,7 +29687,7 @@ const colorize = function (diff, options = {}) {
 
 module.exports = { colorize, colorizeToArray, colorizeToCallback }
 
-},{"./util":171,"colors/safe":85}],171:[function(require,module,exports){
+},{"./util":184,"colors/safe":98}],184:[function(require,module,exports){
 const extendedTypeOf = function (obj) {
   const result = typeof obj
   if (obj == null) {
@@ -28104,7 +29723,7 @@ const roundObj = function (data, precision) {
 
 module.exports = { extendedTypeOf, roundObj }
 
-},{}],172:[function(require,module,exports){
+},{}],185:[function(require,module,exports){
 'use strict'
 var inherits = require('inherits')
 var HashBase = require('hash-base')
@@ -28252,7 +29871,7 @@ function fnI (a, b, c, d, m, k, s) {
 
 module.exports = MD5
 
-},{"hash-base":133,"inherits":165,"safe-buffer":206}],173:[function(require,module,exports){
+},{"hash-base":146,"inherits":178,"safe-buffer":219}],186:[function(require,module,exports){
 var bn = require('bn.js');
 var brorand = require('brorand');
 
@@ -28369,9 +29988,9 @@ MillerRabin.prototype.getDivisor = function getDivisor(n, k) {
   return false;
 };
 
-},{"bn.js":174,"brorand":21}],174:[function(require,module,exports){
-arguments[4][17][0].apply(exports,arguments)
-},{"buffer":22,"dup":17}],175:[function(require,module,exports){
+},{"bn.js":187,"brorand":34}],187:[function(require,module,exports){
+arguments[4][30][0].apply(exports,arguments)
+},{"buffer":35,"dup":30}],188:[function(require,module,exports){
 module.exports = assert;
 
 function assert(val, msg) {
@@ -28384,7 +30003,7 @@ assert.equal = function assertEqual(l, r, msg) {
     throw new Error(msg || ('Assertion failed: ' + l + ' != ' + r));
 };
 
-},{}],176:[function(require,module,exports){
+},{}],189:[function(require,module,exports){
 'use strict';
 
 var utils = exports;
@@ -28444,7 +30063,7 @@ utils.encode = function encode(arr, enc) {
     return arr;
 };
 
-},{}],177:[function(require,module,exports){
+},{}],190:[function(require,module,exports){
 'use strict';
 
 var keysShim;
@@ -28568,7 +30187,7 @@ if (!Object.keys) {
 }
 module.exports = keysShim;
 
-},{"./isArguments":179}],178:[function(require,module,exports){
+},{"./isArguments":192}],191:[function(require,module,exports){
 'use strict';
 
 var slice = Array.prototype.slice;
@@ -28602,7 +30221,7 @@ keysShim.shim = function shimObjectKeys() {
 
 module.exports = keysShim;
 
-},{"./implementation":177,"./isArguments":179}],179:[function(require,module,exports){
+},{"./implementation":190,"./isArguments":192}],192:[function(require,module,exports){
 'use strict';
 
 var toStr = Object.prototype.toString;
@@ -28621,7 +30240,7 @@ module.exports = function isArguments(value) {
 	return isArgs;
 };
 
-},{}],180:[function(require,module,exports){
+},{}],193:[function(require,module,exports){
 'use strict';
 
 // modified from https://github.com/es-shims/es6-shim
@@ -28669,7 +30288,7 @@ module.exports = function assign(target, source1) {
 	return to; // step 4
 };
 
-},{"call-bind/callBound":72,"has-symbols/shams":130,"object-keys":178}],181:[function(require,module,exports){
+},{"call-bind/callBound":85,"has-symbols/shams":143,"object-keys":191}],194:[function(require,module,exports){
 'use strict';
 
 var implementation = require('./implementation');
@@ -28726,7 +30345,7 @@ module.exports = function getPolyfill() {
 	return Object.assign;
 };
 
-},{"./implementation":180}],182:[function(require,module,exports){
+},{"./implementation":193}],195:[function(require,module,exports){
 exports.endianness = function () { return 'LE' };
 
 exports.hostname = function () {
@@ -28777,7 +30396,7 @@ exports.homedir = function () {
 	return '/'
 };
 
-},{}],183:[function(require,module,exports){
+},{}],196:[function(require,module,exports){
 module.exports={"2.16.840.1.101.3.4.1.1": "aes-128-ecb",
 "2.16.840.1.101.3.4.1.2": "aes-128-cbc",
 "2.16.840.1.101.3.4.1.3": "aes-128-ofb",
@@ -28791,7 +30410,7 @@ module.exports={"2.16.840.1.101.3.4.1.1": "aes-128-ecb",
 "2.16.840.1.101.3.4.1.43": "aes-256-ofb",
 "2.16.840.1.101.3.4.1.44": "aes-256-cfb"
 }
-},{}],184:[function(require,module,exports){
+},{}],197:[function(require,module,exports){
 // from https://github.com/indutny/self-signed/blob/gh-pages/lib/asn1.js
 // Fedor, you are amazing.
 'use strict'
@@ -28915,7 +30534,7 @@ exports.signature = asn1.define('signature', function () {
   )
 })
 
-},{"./certificate":185,"asn1.js":3}],185:[function(require,module,exports){
+},{"./certificate":198,"asn1.js":16}],198:[function(require,module,exports){
 // from https://github.com/Rantanen/node-dtls/blob/25a7dc861bda38cfeac93a723500eea4f0ac2e86/Certificate.js
 // thanks to @Rantanen
 
@@ -29006,7 +30625,7 @@ var X509Certificate = asn.define('X509Certificate', function () {
 
 module.exports = X509Certificate
 
-},{"asn1.js":3}],186:[function(require,module,exports){
+},{"asn1.js":16}],199:[function(require,module,exports){
 // adapted from https://github.com/apatil/pemstrip
 var findProc = /Proc-Type: 4,ENCRYPTED[\n\r]+DEK-Info: AES-((?:128)|(?:192)|(?:256))-CBC,([0-9A-H]+)[\n\r]+([0-9A-z\n\r+/=]+)[\n\r]+/m
 var startRegex = /^-----BEGIN ((?:.*? KEY)|CERTIFICATE)-----/m
@@ -29039,7 +30658,7 @@ module.exports = function (okey, password) {
   }
 }
 
-},{"browserify-aes":25,"evp_bytestokey":122,"safe-buffer":206}],187:[function(require,module,exports){
+},{"browserify-aes":38,"evp_bytestokey":135,"safe-buffer":219}],200:[function(require,module,exports){
 var asn1 = require('./asn1')
 var aesid = require('./aesid.json')
 var fixProc = require('./fixProc')
@@ -29148,7 +30767,7 @@ function decrypt (data, password) {
   return Buffer.concat(out)
 }
 
-},{"./aesid.json":183,"./asn1":184,"./fixProc":186,"browserify-aes":25,"pbkdf2":189,"safe-buffer":206}],188:[function(require,module,exports){
+},{"./aesid.json":196,"./asn1":197,"./fixProc":199,"browserify-aes":38,"pbkdf2":202,"safe-buffer":219}],201:[function(require,module,exports){
 (function (process){(function (){
 // 'path' module extracted from Node.js v8.11.1 (only the posix part)
 // transplited with Babel
@@ -29681,11 +31300,11 @@ posix.posix = posix;
 module.exports = posix;
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":195}],189:[function(require,module,exports){
+},{"_process":208}],202:[function(require,module,exports){
 exports.pbkdf2 = require('./lib/async')
 exports.pbkdf2Sync = require('./lib/sync')
 
-},{"./lib/async":190,"./lib/sync":193}],190:[function(require,module,exports){
+},{"./lib/async":203,"./lib/sync":206}],203:[function(require,module,exports){
 (function (global){(function (){
 var Buffer = require('safe-buffer').Buffer
 
@@ -29807,7 +31426,7 @@ module.exports = function (password, salt, iterations, keylen, digest, callback)
 }
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./default-encoding":191,"./precondition":192,"./sync":193,"./to-buffer":194,"safe-buffer":206}],191:[function(require,module,exports){
+},{"./default-encoding":204,"./precondition":205,"./sync":206,"./to-buffer":207,"safe-buffer":219}],204:[function(require,module,exports){
 (function (process,global){(function (){
 var defaultEncoding
 /* istanbul ignore next */
@@ -29823,7 +31442,7 @@ if (global.process && global.process.browser) {
 module.exports = defaultEncoding
 
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":195}],192:[function(require,module,exports){
+},{"_process":208}],205:[function(require,module,exports){
 var MAX_ALLOC = Math.pow(2, 30) - 1 // default in iojs
 
 module.exports = function (iterations, keylen) {
@@ -29844,7 +31463,7 @@ module.exports = function (iterations, keylen) {
   }
 }
 
-},{}],193:[function(require,module,exports){
+},{}],206:[function(require,module,exports){
 var md5 = require('create-hash/md5')
 var RIPEMD160 = require('ripemd160')
 var sha = require('sha.js')
@@ -29951,7 +31570,7 @@ function pbkdf2 (password, salt, iterations, keylen, digest) {
 
 module.exports = pbkdf2
 
-},{"./default-encoding":191,"./precondition":192,"./to-buffer":194,"create-hash/md5":89,"ripemd160":205,"safe-buffer":206,"sha.js":209}],194:[function(require,module,exports){
+},{"./default-encoding":204,"./precondition":205,"./to-buffer":207,"create-hash/md5":102,"ripemd160":218,"safe-buffer":219,"sha.js":222}],207:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 
 module.exports = function (thing, encoding, name) {
@@ -29966,7 +31585,7 @@ module.exports = function (thing, encoding, name) {
   }
 }
 
-},{"safe-buffer":206}],195:[function(require,module,exports){
+},{"safe-buffer":219}],208:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -30152,7 +31771,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],196:[function(require,module,exports){
+},{}],209:[function(require,module,exports){
 exports.publicEncrypt = require('./publicEncrypt')
 exports.privateDecrypt = require('./privateDecrypt')
 
@@ -30164,7 +31783,7 @@ exports.publicDecrypt = function publicDecrypt (key, buf) {
   return exports.privateDecrypt(key, buf, true)
 }
 
-},{"./privateDecrypt":199,"./publicEncrypt":200}],197:[function(require,module,exports){
+},{"./privateDecrypt":212,"./publicEncrypt":213}],210:[function(require,module,exports){
 var createHash = require('create-hash')
 var Buffer = require('safe-buffer').Buffer
 
@@ -30185,9 +31804,9 @@ function i2ops (c) {
   return out
 }
 
-},{"create-hash":88,"safe-buffer":206}],198:[function(require,module,exports){
-arguments[4][17][0].apply(exports,arguments)
-},{"buffer":22,"dup":17}],199:[function(require,module,exports){
+},{"create-hash":101,"safe-buffer":219}],211:[function(require,module,exports){
+arguments[4][30][0].apply(exports,arguments)
+},{"buffer":35,"dup":30}],212:[function(require,module,exports){
 var parseKeys = require('parse-asn1')
 var mgf = require('./mgf')
 var xor = require('./xor')
@@ -30294,7 +31913,7 @@ function compare (a, b) {
   return dif
 }
 
-},{"./mgf":197,"./withPublic":201,"./xor":202,"bn.js":198,"browserify-rsa":43,"create-hash":88,"parse-asn1":187,"safe-buffer":206}],200:[function(require,module,exports){
+},{"./mgf":210,"./withPublic":214,"./xor":215,"bn.js":211,"browserify-rsa":56,"create-hash":101,"parse-asn1":200,"safe-buffer":219}],213:[function(require,module,exports){
 var parseKeys = require('parse-asn1')
 var randomBytes = require('randombytes')
 var createHash = require('create-hash')
@@ -30384,7 +32003,7 @@ function nonZero (len) {
   return out
 }
 
-},{"./mgf":197,"./withPublic":201,"./xor":202,"bn.js":198,"browserify-rsa":43,"create-hash":88,"parse-asn1":187,"randombytes":203,"safe-buffer":206}],201:[function(require,module,exports){
+},{"./mgf":210,"./withPublic":214,"./xor":215,"bn.js":211,"browserify-rsa":56,"create-hash":101,"parse-asn1":200,"randombytes":216,"safe-buffer":219}],214:[function(require,module,exports){
 var BN = require('bn.js')
 var Buffer = require('safe-buffer').Buffer
 
@@ -30398,7 +32017,7 @@ function withPublic (paddedMsg, key) {
 
 module.exports = withPublic
 
-},{"bn.js":198,"safe-buffer":206}],202:[function(require,module,exports){
+},{"bn.js":211,"safe-buffer":219}],215:[function(require,module,exports){
 module.exports = function xor (a, b) {
   var len = a.length
   var i = -1
@@ -30408,7 +32027,7 @@ module.exports = function xor (a, b) {
   return a
 }
 
-},{}],203:[function(require,module,exports){
+},{}],216:[function(require,module,exports){
 (function (process,global){(function (){
 'use strict'
 
@@ -30462,7 +32081,7 @@ function randomBytes (size, cb) {
 }
 
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":195,"safe-buffer":206}],204:[function(require,module,exports){
+},{"_process":208,"safe-buffer":219}],217:[function(require,module,exports){
 (function (process,global){(function (){
 'use strict'
 
@@ -30574,7 +32193,7 @@ function randomFillSync (buf, offset, size) {
 }
 
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":195,"randombytes":203,"safe-buffer":206}],205:[function(require,module,exports){
+},{"_process":208,"randombytes":216,"safe-buffer":219}],218:[function(require,module,exports){
 'use strict'
 var Buffer = require('buffer').Buffer
 var inherits = require('inherits')
@@ -30739,7 +32358,7 @@ function fn5 (a, b, c, d, e, m, k, s) {
 
 module.exports = RIPEMD160
 
-},{"buffer":69,"hash-base":133,"inherits":165}],206:[function(require,module,exports){
+},{"buffer":82,"hash-base":146,"inherits":178}],219:[function(require,module,exports){
 /*! safe-buffer. MIT License. Feross Aboukhadijeh <https://feross.org/opensource> */
 /* eslint-disable node/no-deprecated-api */
 var buffer = require('buffer')
@@ -30806,7 +32425,7 @@ SafeBuffer.allocUnsafeSlow = function (size) {
   return buffer.SlowBuffer(size)
 }
 
-},{"buffer":69}],207:[function(require,module,exports){
+},{"buffer":82}],220:[function(require,module,exports){
 (function (process){(function (){
 /* eslint-disable node/no-deprecated-api */
 
@@ -30887,7 +32506,7 @@ if (!safer.constants) {
 module.exports = safer
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":195,"buffer":69}],208:[function(require,module,exports){
+},{"_process":208,"buffer":82}],221:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 
 // prototype class for hash functions
@@ -30970,7 +32589,7 @@ Hash.prototype._update = function () {
 
 module.exports = Hash
 
-},{"safe-buffer":206}],209:[function(require,module,exports){
+},{"safe-buffer":219}],222:[function(require,module,exports){
 var exports = module.exports = function SHA (algorithm) {
   algorithm = algorithm.toLowerCase()
 
@@ -30987,7 +32606,7 @@ exports.sha256 = require('./sha256')
 exports.sha384 = require('./sha384')
 exports.sha512 = require('./sha512')
 
-},{"./sha":210,"./sha1":211,"./sha224":212,"./sha256":213,"./sha384":214,"./sha512":215}],210:[function(require,module,exports){
+},{"./sha":223,"./sha1":224,"./sha224":225,"./sha256":226,"./sha384":227,"./sha512":228}],223:[function(require,module,exports){
 /*
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-0, as defined
  * in FIPS PUB 180-1
@@ -31083,7 +32702,7 @@ Sha.prototype._hash = function () {
 
 module.exports = Sha
 
-},{"./hash":208,"inherits":165,"safe-buffer":206}],211:[function(require,module,exports){
+},{"./hash":221,"inherits":178,"safe-buffer":219}],224:[function(require,module,exports){
 /*
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-1, as defined
  * in FIPS PUB 180-1
@@ -31184,7 +32803,7 @@ Sha1.prototype._hash = function () {
 
 module.exports = Sha1
 
-},{"./hash":208,"inherits":165,"safe-buffer":206}],212:[function(require,module,exports){
+},{"./hash":221,"inherits":178,"safe-buffer":219}],225:[function(require,module,exports){
 /**
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-256, as defined
  * in FIPS 180-2
@@ -31239,7 +32858,7 @@ Sha224.prototype._hash = function () {
 
 module.exports = Sha224
 
-},{"./hash":208,"./sha256":213,"inherits":165,"safe-buffer":206}],213:[function(require,module,exports){
+},{"./hash":221,"./sha256":226,"inherits":178,"safe-buffer":219}],226:[function(require,module,exports){
 /**
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-256, as defined
  * in FIPS 180-2
@@ -31376,7 +32995,7 @@ Sha256.prototype._hash = function () {
 
 module.exports = Sha256
 
-},{"./hash":208,"inherits":165,"safe-buffer":206}],214:[function(require,module,exports){
+},{"./hash":221,"inherits":178,"safe-buffer":219}],227:[function(require,module,exports){
 var inherits = require('inherits')
 var SHA512 = require('./sha512')
 var Hash = require('./hash')
@@ -31435,7 +33054,7 @@ Sha384.prototype._hash = function () {
 
 module.exports = Sha384
 
-},{"./hash":208,"./sha512":215,"inherits":165,"safe-buffer":206}],215:[function(require,module,exports){
+},{"./hash":221,"./sha512":228,"inherits":178,"safe-buffer":219}],228:[function(require,module,exports){
 var inherits = require('inherits')
 var Hash = require('./hash')
 var Buffer = require('safe-buffer').Buffer
@@ -31697,7 +33316,7 @@ Sha512.prototype._hash = function () {
 
 module.exports = Sha512
 
-},{"./hash":208,"inherits":165,"safe-buffer":206}],216:[function(require,module,exports){
+},{"./hash":221,"inherits":178,"safe-buffer":219}],229:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -31828,35 +33447,35 @@ Stream.prototype.pipe = function(dest, options) {
   return dest;
 };
 
-},{"events":121,"inherits":165,"readable-stream/lib/_stream_duplex.js":218,"readable-stream/lib/_stream_passthrough.js":219,"readable-stream/lib/_stream_readable.js":220,"readable-stream/lib/_stream_transform.js":221,"readable-stream/lib/_stream_writable.js":222,"readable-stream/lib/internal/streams/end-of-stream.js":226,"readable-stream/lib/internal/streams/pipeline.js":228}],217:[function(require,module,exports){
-arguments[4][50][0].apply(exports,arguments)
-},{"dup":50}],218:[function(require,module,exports){
-arguments[4][51][0].apply(exports,arguments)
-},{"./_stream_readable":220,"./_stream_writable":222,"_process":195,"dup":51,"inherits":165}],219:[function(require,module,exports){
-arguments[4][52][0].apply(exports,arguments)
-},{"./_stream_transform":221,"dup":52,"inherits":165}],220:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"../errors":217,"./_stream_duplex":218,"./internal/streams/async_iterator":223,"./internal/streams/buffer_list":224,"./internal/streams/destroy":225,"./internal/streams/from":227,"./internal/streams/state":229,"./internal/streams/stream":230,"_process":195,"buffer":69,"dup":53,"events":121,"inherits":165,"string_decoder/":231,"util":22}],221:[function(require,module,exports){
-arguments[4][54][0].apply(exports,arguments)
-},{"../errors":217,"./_stream_duplex":218,"dup":54,"inherits":165}],222:[function(require,module,exports){
-arguments[4][55][0].apply(exports,arguments)
-},{"../errors":217,"./_stream_duplex":218,"./internal/streams/destroy":225,"./internal/streams/state":229,"./internal/streams/stream":230,"_process":195,"buffer":69,"dup":55,"inherits":165,"util-deprecate":232}],223:[function(require,module,exports){
-arguments[4][56][0].apply(exports,arguments)
-},{"./end-of-stream":226,"_process":195,"dup":56}],224:[function(require,module,exports){
-arguments[4][57][0].apply(exports,arguments)
-},{"buffer":69,"dup":57,"util":22}],225:[function(require,module,exports){
-arguments[4][58][0].apply(exports,arguments)
-},{"_process":195,"dup":58}],226:[function(require,module,exports){
-arguments[4][59][0].apply(exports,arguments)
-},{"../../../errors":217,"dup":59}],227:[function(require,module,exports){
-arguments[4][60][0].apply(exports,arguments)
-},{"dup":60}],228:[function(require,module,exports){
-arguments[4][61][0].apply(exports,arguments)
-},{"../../../errors":217,"./end-of-stream":226,"dup":61}],229:[function(require,module,exports){
-arguments[4][62][0].apply(exports,arguments)
-},{"../../../errors":217,"dup":62}],230:[function(require,module,exports){
+},{"events":134,"inherits":178,"readable-stream/lib/_stream_duplex.js":231,"readable-stream/lib/_stream_passthrough.js":232,"readable-stream/lib/_stream_readable.js":233,"readable-stream/lib/_stream_transform.js":234,"readable-stream/lib/_stream_writable.js":235,"readable-stream/lib/internal/streams/end-of-stream.js":239,"readable-stream/lib/internal/streams/pipeline.js":241}],230:[function(require,module,exports){
 arguments[4][63][0].apply(exports,arguments)
-},{"dup":63,"events":121}],231:[function(require,module,exports){
+},{"dup":63}],231:[function(require,module,exports){
+arguments[4][64][0].apply(exports,arguments)
+},{"./_stream_readable":233,"./_stream_writable":235,"_process":208,"dup":64,"inherits":178}],232:[function(require,module,exports){
+arguments[4][65][0].apply(exports,arguments)
+},{"./_stream_transform":234,"dup":65,"inherits":178}],233:[function(require,module,exports){
+arguments[4][66][0].apply(exports,arguments)
+},{"../errors":230,"./_stream_duplex":231,"./internal/streams/async_iterator":236,"./internal/streams/buffer_list":237,"./internal/streams/destroy":238,"./internal/streams/from":240,"./internal/streams/state":242,"./internal/streams/stream":243,"_process":208,"buffer":82,"dup":66,"events":134,"inherits":178,"string_decoder/":244,"util":35}],234:[function(require,module,exports){
+arguments[4][67][0].apply(exports,arguments)
+},{"../errors":230,"./_stream_duplex":231,"dup":67,"inherits":178}],235:[function(require,module,exports){
+arguments[4][68][0].apply(exports,arguments)
+},{"../errors":230,"./_stream_duplex":231,"./internal/streams/destroy":238,"./internal/streams/state":242,"./internal/streams/stream":243,"_process":208,"buffer":82,"dup":68,"inherits":178,"util-deprecate":245}],236:[function(require,module,exports){
+arguments[4][69][0].apply(exports,arguments)
+},{"./end-of-stream":239,"_process":208,"dup":69}],237:[function(require,module,exports){
+arguments[4][70][0].apply(exports,arguments)
+},{"buffer":82,"dup":70,"util":35}],238:[function(require,module,exports){
+arguments[4][71][0].apply(exports,arguments)
+},{"_process":208,"dup":71}],239:[function(require,module,exports){
+arguments[4][72][0].apply(exports,arguments)
+},{"../../../errors":230,"dup":72}],240:[function(require,module,exports){
+arguments[4][73][0].apply(exports,arguments)
+},{"dup":73}],241:[function(require,module,exports){
+arguments[4][74][0].apply(exports,arguments)
+},{"../../../errors":230,"./end-of-stream":239,"dup":74}],242:[function(require,module,exports){
+arguments[4][75][0].apply(exports,arguments)
+},{"../../../errors":230,"dup":75}],243:[function(require,module,exports){
+arguments[4][76][0].apply(exports,arguments)
+},{"dup":76,"events":134}],244:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -32153,7 +33772,7 @@ function simpleWrite(buf) {
 function simpleEnd(buf) {
   return buf && buf.length ? this.write(buf) : '';
 }
-},{"safe-buffer":206}],232:[function(require,module,exports){
+},{"safe-buffer":219}],245:[function(require,module,exports){
 (function (global){(function (){
 
 /**
@@ -32224,9 +33843,9 @@ function config (name) {
 }
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],233:[function(require,module,exports){
-arguments[4][67][0].apply(exports,arguments)
-},{"dup":67}],234:[function(require,module,exports){
+},{}],246:[function(require,module,exports){
+arguments[4][80][0].apply(exports,arguments)
+},{"dup":80}],247:[function(require,module,exports){
 // Currently in sync with Node.js lib/internal/util/types.js
 // https://github.com/nodejs/node/commit/112cc7c27551254aa2b17098fb774867f05ed0d9
 
@@ -32562,7 +34181,7 @@ exports.isAnyArrayBuffer = isAnyArrayBuffer;
   });
 });
 
-},{"is-arguments":166,"is-generator-function":168,"is-typed-array":169,"which-typed-array":236}],235:[function(require,module,exports){
+},{"is-arguments":179,"is-generator-function":181,"is-typed-array":182,"which-typed-array":249}],248:[function(require,module,exports){
 (function (process){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -33281,7 +34900,7 @@ function callbackify(original) {
 exports.callbackify = callbackify;
 
 }).call(this)}).call(this,require('_process'))
-},{"./support/isBuffer":233,"./support/types":234,"_process":195,"inherits":165}],236:[function(require,module,exports){
+},{"./support/isBuffer":246,"./support/types":247,"_process":208,"inherits":178}],249:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -33340,1459 +34959,7 @@ module.exports = function whichTypedArray(value) {
 };
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"available-typed-arrays":18,"call-bind/callBound":72,"for-each":123,"gopd":127,"has-tostringtag/shams":131,"is-typed-array":169}],237:[function(require,module,exports){
-var css = "/*\nThis is part of jsdifflib v1.0. <http://github.com/cemerick/jsdifflib>\n\nCopyright 2007 - 2011 Chas Emerick <cemerick@snowtide.com>. All rights reserved.\n\nRedistribution and use in source and binary forms, with or without modification, are\npermitted provided that the following conditions are met:\n\n   1. Redistributions of source code must retain the above copyright notice, this list of\n      conditions and the following disclaimer.\n\n   2. Redistributions in binary form must reproduce the above copyright notice, this list\n      of conditions and the following disclaimer in the documentation and/or other materials\n      provided with the distribution.\n\nTHIS SOFTWARE IS PROVIDED BY Chas Emerick ``AS IS'' AND ANY EXPRESS OR IMPLIED\nWARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND\nFITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL Chas Emerick OR\nCONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR\nCONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\nSERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON\nANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING\nNEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF\nADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n\nThe views and conclusions contained in the software and documentation are those of the\nauthors and should not be interpreted as representing official policies, either expressed\nor implied, of Chas Emerick.\n*/\ntable.diff {\n  border-collapse: collapse;\n  border: 1px solid darkgray;\n  white-space: pre-wrap;\n  width: 100%;\n  border-collapse: collapse;\n}\ntable.diff tbody {\n  font-family: Courier, monospace;\n}\ntable.diff tbody th {\n  font-family: verdana,arial,'Bitstream Vera Sans',helvetica,sans-serif;\n  background: #EED;\n  font-size: 11px;\n  font-weight: normal;\n  border: 1px solid #BBC;\n  color: #886;\n  padding: .3em .5em .1em 2em;\n  text-align: right;\n  vertical-align: top;\n}\ntable.diff thead {\n  border-bottom: 1px solid #BBC;\n  background: #EFEFEF;\n  font-family: Verdana;\n}\ntable.diff thead th.texttitle {\n  text-align: left;\n}\ntable.diff tbody tr {\n  border-bottom: 1pt solid black;\n}\ntable.diff tbody th {\n  width: 1%;\n}\ntable.diff tbody td {\n  padding: 0px .4em;\n  padding-top: .4em;\n  vertical-align: top;\n  word-break: break-all;\n  width: 45%;\n}\ntable.diff .empty {\n  background-color: #DDD;\n}\ntable.diff .replace {\n  background-color: #FD8;\n}\ntable.diff .delete {\n  background-color: #E99;\n}\ntable.diff .skip {\n  background-color: #EFEFEF;\n  border: 1px solid #AAA;\n  border-right: 1px solid #BBC;\n}\ntable.diff .insert {\n  background-color: #9E9;\n}\ntable.diff .tree_unequal {\n  background-color: #CC8;\n}\ntable.diff th.author {\n  text-align: right;\n  border-top: 1px solid #BBC;\n  background: #EFEFEF;\n}\n"; (require("browserify-css").createStyle(css, { "href": "../3rdparty/jsdifflib/diffview.css" }, { "insertAt": "bottom" })); module.exports = css;
-},{"browserify-css":247}],238:[function(require,module,exports){
-// This file has three functions celt, telt, ctelt copied from jsdifflib v1.0. http://github.com/cemerick/jsdifflib
-// They are for creating html elements, used for creating rows of the diff
-// The following is the license text of jsdifflib
-/*
-This is part of jsdifflib v1.0. <http://github.com/cemerick/jsdifflib>
-
-Copyright 2007 - 2011 Chas Emerick <cemerick@snowtide.com>. All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification, are
-permitted provided that the following conditions are met:
-
-   1. Redistributions of source code must retain the above copyright notice, this list of
-      conditions and the following disclaimer.
-
-   2. Redistributions in binary form must reproduce the above copyright notice, this list
-      of conditions and the following disclaimer in the documentation and/or other materials
-      provided with the distribution.
-
-THIS SOFTWARE IS PROVIDED BY Chas Emerick ``AS IS'' AND ANY EXPRESS OR IMPLIED
-WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL Chas Emerick OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-The views and conclusions contained in the software and documentation are those of the
-authors and should not be interpreted as representing official policies, either expressed
-or implied, of Chas Emerick.
-*/
-
-(function(){
-function celt (name, clazz) {
-  var e = document.createElement(name);
-  e.className = clazz;
-  return e;
-}
-
-function telt (name, text) {
-  var e = document.createElement(name);
-  e.appendChild(document.createTextNode(text));
-  return e;
-}
-
-function ctelt (name, clazz, text) {
-  var e = document.createElement(name);
-  e.className = clazz;
-  e.appendChild(document.createTextNode(text));
-  return e;
-}
-
-window.celt = celt;
-window.telt = telt;
-window.ctelt = ctelt;
-
-})();
-
-},{}],239:[function(require,module,exports){
-/*
-
-jsondiffgui:
-jsondiffgui Copyright (c) 2023 Kaushik Sundararajan
-https://github.com/kaushik137/jsondiffgui.git
-
-The MIT License (MIT)
-
-Copyright (c) 2023 Kaushik Sundararajan
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-*/
-
-/* jshint esversion: 6                                  */
-/* jshint  undef:true                                  */
-
-(function() {
-
-function process_event(src, event, theview, row_index) {
-  return theview.handleEvent(event, row_index)
-}
-
-function onclick_td_handler(theview, row) {
-  return function(event) { return process_event(this, event, theview, row.rowIndex) }
-}
-
-function onclick_th_handler(theview, row) {
-  return function(event) { return process_event(this, event, theview, row.rowIndex) }
-}
-
-function keydown_table_handler(theview) {
-  return function(event) { return process_event(this, event, theview, null) }
-}
-
-function setTableHandler(theview) {
-  var table = theview.table
-  var rows = table.getElementsByTagName("tr");
-  table.addEventListener('keydown', keydown_table_handler(theview) )
-  table.tabIndex = 0
-
-  table.onfocus = function(e) { this.style.outline="#0E0 ridge" ; } // jshint unused:false
-  table.onblur  = function(e) { this.style.outline="" ; } // jshint unused:false
-    // Todo: reset it to old value?
-
-  for (var i = 1; i < rows.length; i++) {
-    var row = table.rows[i];
-    row.cells[0].onclick = onclick_th_handler(theview, row);
-    row.cells[2].onclick = onclick_th_handler(theview, row);
-    row.cells[1].onclick = onclick_td_handler(theview, row);
-    row.cells[3].onclick = onclick_td_handler(theview, row);
-    // reset_state_for_row(row)
-  }
-}
-
-window.setTableHandler = setTableHandler
-})()
-
-
-},{}],240:[function(require,module,exports){
-/*
-
-jsondiffgui:
-jsondiffgui Copyright (c) 2023 Kaushik Sundararajan
-https://github.com/kaushik137/jsondiffgui.git
-
-The MIT License (MIT)
-
-Copyright (c) 2023 Kaushik Sundararajan
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-*/
-
-
-/* async/await not supported by jshint */
-
-/* jshint esversion: 6                                  */
-/* exported helloval                                    */
-/* global require:true */
-/* global ViewModel:true, HtmltableView:true, setTableHandler:true */
-/* experimental:  [asyncawait, asyncreqawait]  */
-
-(function() {
-
-async function get_delta_patched_jsons(basetxt, newtxt) {
-  const json_diff=require('json-diff')
-  const jqutils=require('./jqutils.js')
-  var delta_lr=json_diff.diff(JSON.parse(basetxt, 'utf-8'), JSON.parse(newtxt,'utf-8'), {keepUnchangedValues: true, full: true } )
-  var patched_lr=await jqutils.patch_delta( delta_lr)
-  return patched_lr
-}
-
-async function generate_jsondiff_htmltable(basetxt, newtxt, toCompact=0) {
-  var patched_jsons = await get_delta_patched_jsons(basetxt, newtxt)
-  var viewmodel = new ViewModel(patched_jsons, toCompact)
-
-  var view = new HtmltableView(viewmodel)
-  setTableHandler(view)
-  console.log("Number of Rows =", viewmodel.rowsRepr.length)
-
-  viewmodel.recursive_collapse(1, "yes")
-  viewmodel.collapse(1, "")
-  view.redraw_node(1)
-
-  return view.table
-}
-
-window.get_delta_patched_jsons = get_delta_patched_jsons
-window.jsondiffgui={ generate_jsondiff_htmltable }
-
-
-})()
-
-},{"./jqutils.js":"jqutils","json-diff":"json_diff"}],241:[function(require,module,exports){
-/*
-
-jsondiffgui:
-jsondiffgui Copyright (c) 2023 Kaushik Sundararajan
-https://github.com/kaushik137/jsondiffgui.git
-
-The MIT License (MIT)
-
-Copyright (c) 2023 Kaushik Sundararajan
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-*/
-
-
-/* jshint esversion: 6                                  */
-/* jshint  undef:true                                  */
-/* global HtmltableView:true, module:true, eventCommand:true */
-
-(function() {
-// in mac does altKey map to option key?
-var eventCommandMaps = [
-  { 'eventSpec' : { 'tagName' : 'TH', 'type' : 'click'                                     }, 'commandName' : 'toggle_collapse' },
-  { 'eventSpec' : { 'tagName' : 'TH', 'type' : 'click', 'ctrlKey' : true                   }, 'commandName' : 'recursive_open' },
-  { 'eventSpec' : { 'tagName' : 'TH', 'type' : 'click', 'ctrlKey' : true, 'altKey' : true  }, 'commandName' : 'recursive_collapse' },
-  { 'eventSpec' : { 'tagName' : 'TD', 'type' : 'click'                                     }, 'commandName' : 'change_selected_index' },
-  { 'eventSpec' : { 'tagName' : 'TD', 'type' : 'click',                   'altKey' : true  }, 'commandName' : 'scroll2selection' },
-
-  { 'eventSpec' : { 'tagName' : 'TABLE', 'type' : 'keydown', 'key': 'p'  }, 'commandName' : 'prev_obj' },
-  { 'eventSpec' : { 'tagName' : 'TABLE', 'type' : 'keydown', 'key': 'n' }, 'commandName' : 'next_obj' },
-  { 'eventSpec' : { 'tagName' : 'TABLE', 'type' : 'keydown', 'key': 'Enter',      'ctrlKey' : true }, 'commandName' : 'recursive_open' },
-  { 'eventSpec' : { 'tagName' : 'TABLE', 'type' : 'keydown', 'key': 'Enter',      'ctrlKey' : true, 'altKey' : true }, 'commandName' : 'recursive_collapse' },
-
-  { 'eventSpec' : { 'tagName' : 'TABLE', 'type' : 'keydown', 'key': '['                      }, 'commandName' : 'obj_open' },
-  { 'eventSpec' : { 'tagName' : 'TABLE', 'type' : 'keydown', 'key': ']'                      }, 'commandName' : 'obj_close' },
-  { 'eventSpec' : { 'tagName' : 'TABLE', 'type' : 'keydown', 'key': 'k'                      }, 'commandName' : 'prev_row' },
-  { 'eventSpec' : { 'tagName' : 'TABLE', 'type' : 'keydown', 'key': 'j'                      }, 'commandName' : 'next_row' },
-  { 'eventSpec' : { 'tagName' : 'TABLE', 'type' : 'keydown', 'key': 'ArrowLeft'              }, 'commandName' : 'prev_diff' },
-  { 'eventSpec' : { 'tagName' : 'TABLE', 'type' : 'keydown', 'key': 'ArrowRight'             }, 'commandName' : 'next_diff' },
-  { 'eventSpec' : { 'tagName' : 'TABLE', 'type' : 'keydown', 'key': 'Enter'                  }, 'commandName' : 'toggle_collapse' },
-  { 'eventSpec' : { 'tagName' : 'TABLE', 'type' : 'keydown', 'key': 'Enter', 'altKey' : true }, 'commandName' : 'scroll2selection' },
-
-]
-
-function LOG() {
-  return
-}
-
-eventCommand = function(event, target_view, inrowindex) {
-  const default_false = (x => x === undefined ? false : x)
-  const inEvent = event
-  const compare_event = ( x =>
-    ( inEvent.type                === x.eventSpec.type                    ) &&
-    ( inEvent.currentTarget.tagName  === x.eventSpec.tagName                    ) &&
-    ( inEvent.key                 === x.eventSpec.key                     ) &&
-    ( inEvent.ctrlKey             === default_false(x.eventSpec.ctrlKey)  ) &&
-    ( inEvent.altKey              === default_false(x.eventSpec.altKey)   ) &&
-    ( inEvent.shiftKey            === default_false(x.eventSpec.shiftKey) )
-  )
-
-  this.cmdname = "" ; this.fn = null; this.params = null ; this.cmd_target = null
-
-  var cmd_index = eventCommandMaps.findIndex(compare_event)
-  console.log("eventCommand: event = ",event, "tagname = ", event.currentTarget.tagName, "index = ", cmd_index)
-  if (cmd_index !== -1 && inrowindex) {
-    var cmdEventSpec = eventCommandMaps[cmd_index]
-    console.log("command = ", cmdEventSpec.commandName, "eventSpec = ", cmdEventSpec.eventSpec, "rowindex=", inrowindex)
-
-    const cmdname = cmdEventSpec.commandName
-    var cmdFn = HtmltableView.prototype.jsondiffguiCommands[cmdname]
-    this.cmdname = cmdname; this.fn = cmdFn; this.params = { rowindex : inrowindex } ; this.cmd_target = target_view
-    console.assert( typeof(this.fn) === "function", "eventCommand invalid function passed, this=", this)
-  }
-
-  return this
-}
-
-eventCommand.prototype.is_valid = function () {
-  return this.cmdname && this.params && this.params.rowindex
-}
-
-
-eventCommand.prototype.Do = function () {
-  LOG("eventCommand ", this)
-  return this.cmd_target.execute(this)
-}
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports={ eventCommand };
-} else {
-  window.eventCommand = eventCommand
-}
-
-})()
-
-
-
-},{}],242:[function(require,module,exports){
-/*
-@license
-
-jsondiffgui:
-jsondiffgui Copyright (c) 2023 Kaushik Sundararajan
-https://github.com/kaushik137/jsondiffgui.git
-
-Released under MIT license
-Based on jq-web, json-diff, jsdifflib
-    jq-web:
-        https://github.com/fiatjaf/jq-web.git
-        Copyright (c) 2019 fiatjaf <fiatjaf@gmail.com>
-        license: ISC
-
-        used to transform json objects
-    json-diff:
-        https://github.com/andreyvit/json-diff.git
-        Copyright (c) 2015 Andrey Tarantsov
-        license: MIT
-
-        used to compute a diff of two jsons
-    jsdifflib v1.0:
-        <http://snowtide.com/jsdifflib>
-        Copyright (c) 2007, Snowtide Informatics Systems, Inc.
-        license: BSD
-
-        Three functions celt, telt, ctelt are used in jsondiffgui source
-
-
-The MIT License (MIT)
-
-Copyright (c) 2023 Kaushik Sundararajan
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-*/
-
-
-/* async/await not supported by jshint */
-
-/* jshint esversion: 6                                  */
-/* jshint  curly:false                                  */
-/* jshint  undef:true                                  */
-/* exported diffviewcss                                    */
-/* global require:true */
-/* global celt:true, telt:true, ctelt:true  */
-/* global innerWidth:true, innerHeight:true, create_table:true */
-/* experimental:  [asyncawait, asyncreqawait]  */
-
-(function() {
-var diffviewcss = require("../3rdparty/jsdifflib/diffview.css")
-
-function create_row(rowrepr) {
-    var row = document.createElement("tr")
-
-    function create_cell(num, text, op) {
-      if (op==="empty") {
-        row.appendChild(document.createElement("th"));
-        row.appendChild(celt("td", "empty"));
-      } else {
-        row.appendChild(telt("th", num.toString()));
-        row.appendChild(ctelt("td", op, String(text))); // .replace(/\t/g, "\u00a0\u00a0\u00a0\u00a0")
-      }
-    }
-
-    create_cell(rowrepr.cells[0], rowrepr.cells[1], rowrepr.opcodes[0])
-    create_cell(rowrepr.cells[2], rowrepr.cells[3], rowrepr.opcodes[1])
-
-    return row
-}
-
-create_table = function (RowsRepr) {
-    var baseTextName="base"
-    var newTextName="new"
-
-    var table = celt("table", "diff" );
-    var thead = document.createElement("thead");
-
-    var headrow = document.createElement("tr");
-    headrow.appendChild(document.createElement("th"));
-    headrow.appendChild(ctelt("th", "texttitle", baseTextName));
-    headrow.appendChild(document.createElement("th"));
-    headrow.appendChild(ctelt("th", "texttitle", newTextName));
-
-    var tbody=document.createElement("tbody");
-
-    table.appendChild(thead)
-    thead.appendChild(headrow)
-    table.appendChild(tbody)
-
-    const re_number = /^(0|[1-9]\d*)$/
-    var arr_notation=function(x) { var m=x.match(re_number); return m ? "["+m[0]+"]" : "."+x }
-
-    for (var i=1; i< RowsRepr.length ; ++i) {
-      var xrow=create_row(RowsRepr[i])
-      //const tooltip = RowsRepr[i].linerepr.path.map(arr_notation).join('')
-      const row = RowsRepr[i]
-      var fn = (x => x === "same" ? row.linerepr.path : x)
-
-      var apath = fn(row.actual_paths[0])
-      xrow.cells[0].title = apath ? apath.map(arr_notation).join('') : null
-      apath = fn(row.actual_paths[1])
-      xrow.cells[2].title = apath ? apath.map(arr_notation).join('') : null
-
-      tbody.insertBefore(xrow, null); // if 2nd arg is null will be appended, i.e inserted at the end
-    }
-
-    return table
-}
-
-
-function isElementInView(elem) {
-  var vw=Math.max( innerWidth || 0, document.documentElement.clientWidth)
-  var vh=Math.max( innerHeight || 0, document.documentElement.clientHeight)
-
-  var rect = elem.getBoundingClientRect()
-  return (rect.top >= 0 && rect.left >= 0 && rect.bottom > 0 && rect.right > 0 && rect.bottom < vh && rect.right < vw)
-
-}
-
-window.create_table = create_table
-window.isElementInView = isElementInView
-})()
-
-},{"../3rdparty/jsdifflib/diffview.css":237}],243:[function(require,module,exports){
-/* jshint esversion: 6                                  */
-/* jshint  undef:true                                  */
-/* jshint  curly:false                                  */
-/* exported helloval                                    */
-/* global isElementInView:true, eventCommand:true, create_table:true, JsondiffView:true, HtmltableView:true, module:true */
-/* experimental:  [asyncawait, asyncreqawait]  */
-
-
-(function() {
-
-HtmltableView = function (viewmodel) {
-  this.viewmodel = viewmodel
-  this.table = create_table(viewmodel.rowsRepr)
-  this.change_selected_index(1)
-  return this
-}
-
-HtmltableView.prototype = JsondiffView.prototype
-
-HtmltableView.prototype.scroll2index = function (index, flag_scroll2top) {
-  const nearby_index = flag_scroll2top ? this.viewmodel.prev_row(index) : this.viewmodel.next_row(index)
-  const nearby_elem = this.table.rows[nearby_index]
-  nearby_elem.scrollIntoView(flag_scroll2top)
-}
-
-HtmltableView.prototype.scroll2selection = function() {
-  return this.cur_selected_index
-}
-
-HtmltableView.prototype.jsondiffguiCommands.scroll2selection = HtmltableView.prototype.scroll2selection
-
-HtmltableView.prototype.change_selected_index = function(index) {
-  console.assert( !this.viewmodel.is_hidden(index) )
-  if (this.cur_selected_index)
-    this.table.rows[this.cur_selected_index].style.outline = ""
-
-  this.cur_selected_index = index
-  this.table.rows[this.cur_selected_index].style.outline = "#FF5500 double"
-  return null
-}
-
-HtmltableView.prototype.jsondiffguiCommands.change_selected_index = HtmltableView.prototype.change_selected_index
-
-
-HtmltableView.prototype.handleEvent = function (event, row_index)
-{
-    // row_index will be null when called from handler for 'TABLE'
-    // (event.type==="keydown" && event.currentTarget.tagName==="TABLE")
-    var cmdObj = new eventCommand(event, this, row_index ? row_index : this.cur_selected_index)
-
-    const previndex = this.cur_selected_index
-    // In future, the command target may be different from 'this'
-    // var newindex = cmdObj ? cmdObj.cmd_target.execute(cmdObj) : null
-    var newindex = cmdObj.is_valid() ? cmdObj.Do() : null
-    console.log("cmd returned newindex = ", newindex, "cur selected index = ", this.cur_selected_index)
-
-    if (newindex) {
-      console.assert(newindex !== -1, "eventCommand ", cmdObj.cmdname, "returned index -1" )
-      var ancestor_node = newindex
-      if (this.viewmodel.is_hidden(newindex))
-        ancestor_node = this.viewmodel.expand_to_node(newindex)
-
-      this.redraw_node(ancestor_node)
-      if (newindex !== row_index)
-        this.change_selected_index( newindex )
-
-      var elem = this.table.rows[newindex]
-      if (!isElementInView(elem)) {
-        const flag_scroll2top = (newindex > previndex) ? true : false
-        this.scroll2index(newindex, flag_scroll2top)
-      }
-
-    }
-
-}
-
-function add_class_if_tree_unequal(table, row_index, cellindex, tree_is_unequal) {
-  if (tree_is_unequal)
-    table.rows[row_index].cells[cellindex].classList.add('tree_unequal')
-  else
-    table.rows[row_index].cells[cellindex].classList.remove('tree_unequal')
-}
-
-HtmltableView.prototype.redraw_node = function(ind) {
-  const viewmodel = this.viewmodel
-  const table = this.table
-
-  var range = viewmodel.get_node_range(ind)
-  for (var i = range[0]; i <= range[1]; ++i) {
-    var cur_row = table.rows[i]
-    cur_row.style.display = viewmodel.is_hidden(i) ? 'none' : 'table-row'
-
-    const celltexts = viewmodel.get_row_cells(i)
-    cur_row.cells[0].innerHTML = celltexts[0]
-    cur_row.cells[1].innerHTML = celltexts[1]
-    cur_row.cells[2].innerHTML = celltexts[2]
-    cur_row.cells[3].innerHTML = celltexts[3]
-
-    const tree_is_unequal = viewmodel.is_collapsed(i) && viewmodel.is_tree_unequal(i)
-    add_class_if_tree_unequal(table, i, 1, tree_is_unequal )
-    add_class_if_tree_unequal(table, i, 3, tree_is_unequal )
-  }
-
-}
-
-HtmltableView.prototype.execute = function(cmdobj) {
-  return cmdobj.fn.call(this, cmdobj.params.rowindex)
-}
-
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports={ HtmltableView };
-} else {   // we're in a browser
-  window.HtmltableView = HtmltableView
-}
-
-})()
-
-},{}],244:[function(require,module,exports){
-/*
-
-jsondiffgui:
-jsondiffgui Copyright (c) 2023 Kaushik Sundararajan
-https://github.com/kaushik137/jsondiffgui.git
-
-The MIT License (MIT)
-
-Copyright (c) 2023 Kaushik Sundararajan
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-*/
-
-/* jshint esversion: 6                                  */
-/* jshint  undef:true                                  */
-/* global module:true, JsondiffView:true */
-/* experimental:  [asyncawait, asyncreqawait]  */
-
-(function() {
-
-JsondiffView = function () {  }
-
-JsondiffView.prototype.scroll2selection = null
-
-JsondiffView.prototype.change_selected_index = null
-
-JsondiffView.prototype.recursive_collapse = function(row_index) {
-  const toCollapse = true
-  return this.viewmodel.recursive_collapse(row_index, toCollapse)
-}
-
-JsondiffView.prototype.recursive_open = function(row_index) {
-  const toCollapse = false
-  return this.viewmodel.recursive_collapse(row_index, toCollapse)
-}
-
-JsondiffView.prototype.toggle_collapse = function(row_index) {
-  return this.viewmodel.collapse(row_index, "flip")
-}
-
-JsondiffView.prototype.prev_row = function(row_index) {
-  return this.viewmodel.prev_row(row_index)
-}
-
-JsondiffView.prototype.next_row = function(row_index) {
-  return this.viewmodel.next_row(row_index)
-}
-
-JsondiffView.prototype.prev_obj = function(row_index) {
-  return this.viewmodel.prev_obj(row_index)
-}
-
-JsondiffView.prototype.next_obj = function(row_index) {
-  return this.viewmodel.next_obj(row_index)
-}
-
-JsondiffView.prototype.prev_diff = function(row_index) {
-  return this.viewmodel.prev_diff(row_index)
-}
-
-JsondiffView.prototype.next_diff = function(row_index) {
-  return this.viewmodel.next_diff(row_index)
-}
-
-JsondiffView.prototype.obj_open = function(row_index) {
-  return this.viewmodel.obj_open(row_index)
-}
-
-JsondiffView.prototype.obj_close = function(row_index) {
-  return this.viewmodel.obj_close(row_index)
-}
-
-JsondiffView.prototype.handleEvent = function (event) { // jshint unused:false
-  return
-}
-
-JsondiffView.prototype.redraw_node = function (index) { // jshint unused:false
-  return
-}
-
-
-JsondiffView.prototype.jsondiffguiCommands = {
-  "scroll2selection" : JsondiffView.prototype.scroll2selection,
-  "change_selected_index" : JsondiffView.prototype.change_selected_index,
-  "recursive_collapse" : JsondiffView.prototype.recursive_collapse,
-  "recursive_open" : JsondiffView.prototype.recursive_open,
-  "toggle_collapse" : JsondiffView.prototype.toggle_collapse,
-  "prev_row" : JsondiffView.prototype.prev_row,
-  "next_row" : JsondiffView.prototype.next_row,
-  "prev_obj" : JsondiffView.prototype.prev_obj,
-  "next_obj" : JsondiffView.prototype.next_obj,
-  "prev_diff" : JsondiffView.prototype.prev_diff,
-  "next_diff" : JsondiffView.prototype.next_diff,
-  "obj_open" : JsondiffView.prototype.obj_open,
-  "obj_close" : JsondiffView.prototype.obj_close
-}
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports={ JsondiffView };
-} else {
-  window.JsondiffView = JsondiffView
-}
-
-
-})()
-
-
-
-},{}],245:[function(require,module,exports){
-
-/* jshint esversion: 6                                  */
-/* jshint  undef:true                                  */
-/* jshint  curly:false                                  */
-/* global require:true */
-/* global ViewModel:true, generate_diff:true, get_path_range:true, module:true    */
-/* experimental:  [asyncawait, asyncreqawait]  */
-
-(function(){
-
-const _=require('lodash')
-
-function LOG() { return ; }
-
-const is_different = r => r.opcodes.some( x=> x!=='equal' && x!=='tree_unequal')
-
-ViewModel = function (json_deltas, toCompact=0) {
-  this.json_deltas = json_deltas
-  this.rowsRepr = generate_diff(json_deltas.left, json_deltas.right, toCompact)
-  this.current_selected_index = 0
-
-  return this
-}
-
-ViewModel.prototype._RRPath = function (i)      { return this.rowsRepr[i].linerepr.path   }
-
-ViewModel.prototype._RRLen = function (i)       { return this.rowsRepr[i].linerepr.length }
-
-ViewModel.prototype._RRFind = function (fn, i=0, j=null) {
-  j = j || this.rowsRepr.length
-  var next = this.rowsRepr.slice(i,j).findIndex(fn)
-  return (next === -1 ) ? -1 : i+next
-}
-
-ViewModel.prototype._RRFindLastIndex = function (fn, i=0, j=null) {
-  j = j || this.rowsRepr.length
-  var next = this.rowsRepr.slice(i,j).findLastIndex(fn)
-  return (next === -1 ) ? -1 : i+next
-}
-
-ViewModel.prototype.is_collapsed = function (index) {
-  return this.rowsRepr[index].is_collapsed
-}
-
-ViewModel.prototype.is_ancestor_collapsed = function (index) {
-  return this.rowsRepr[index].ancestor_collapsed
-}
-
-ViewModel.prototype.is_hidden = function (index) {
-    // or hidden_from_diff due to diff context (in future)
-    return this.is_ancestor_collapsed(index)
-}
-
-ViewModel.prototype.is_tree_unequal = function (index) {
-  return this.rowsRepr[index].tree_unequal
-}
-
-
-ViewModel.prototype.get_node_range = function (index) {
-  return get_path_range(index, this._RRLen(index) )
-}
-
-ViewModel.prototype.get_row_cells = function (index) {
-  return this.rowsRepr[index].cells
-}
-
-ViewModel.prototype.expand_to_node = function (index) {
-  var path = this._RRPath(index)
-    const line_matches_path = function (inPath) {
-      return ( x => x.linerepr.length>0 && _.isEqual(x.linerepr.path, inPath) )
-    }
-
-  var paths_to_update = []
-  for (var i = 0; i <= path.length-1; ++i) {
-    var ancestor_path = path.slice(0,i)
-
-    // var ancestor_index = this._RRFind( x => x.linerepr.length>0 && _.isEqual(x.linerepr.path, ancestor_path) )
-    var ancestor_index = this._RRFind( line_matches_path(ancestor_path) )
-
-    console.assert( ancestor_index !== -1 , "expand to node: ancestor_index!=-1 "+ancestor_index)
-    if (this.rowsRepr[ancestor_index].is_collapsed) {
-      this.collapse(ancestor_index, false)
-      paths_to_update.push(ancestor_index)
-    }
-  }
-
-  LOG("expand to node: paths to update", paths_to_update)
-  return  paths_to_update[0]
-}
-
-ViewModel.prototype.set_collapsedtext = function (index, objIndex, toCollapse) {
-  var cellIndex = (objIndex*2) + 1
-  var celltext = this.rowsRepr[index].cells[cellIndex]
-  var replaced_text = celltext
-
-  const re_collapsed = /^ *@.*\.\.\.$/
-  const re_number = /^(0|[1-9]\d*)$/
-
-  var cur_row = this.rowsRepr[index]
-  var fn = (x => x === "same" ? cur_row.linerepr.path : x)
-
-  // Todo: assuming no multiline when deleted. actual_paths may be null otherwise
-  const thepath = fn(cur_row.actual_paths[objIndex])
-  const node_key = thepath.at(-1)
-  const node_key_isArrayIndex = node_key ? node_key.match(re_number) : null
-
-  if (toCollapse && !celltext.match(re_collapsed) ) {
-      if (node_key_isArrayIndex)
-        replaced_text = celltext.replace(/^( *)(.*)/,"$1"+"@["+node_key+"] $2"+"...")
-      else
-        replaced_text = celltext.replace(/^( *)(.*)/,"$1"+"@"+"$2"+"...")
-  }
-  else if (!toCollapse && celltext.match(re_collapsed) ) {
-      if (node_key_isArrayIndex)
-        replaced_text = celltext.replace(/^(.*)@\[\d+\] (.*)\.\.\./,"$1"+"$2");
-      else
-        replaced_text = celltext.replace(/^(.*)@(.*)\.\.\./,"$1"+"$2");
-  }
-
-  this.rowsRepr[index].cells[cellIndex] = replaced_text
-}
-
-ViewModel.prototype.collapse = function (index, toCollapse) {
-  var range = this.get_node_range(index)
-  var startIndex = range[0], endIndex = range[1]
-
-  if (toCollapse === "flip")
-    toCollapse = !this.rowsRepr[index].is_collapsed
-
-  this.rowsRepr[startIndex].is_collapsed = toCollapse ? true : false
-  this.rowsRepr[endIndex].is_collapsed   = toCollapse ? true : false
-
-  if (toCollapse) {
-    for (let i = startIndex+1; i < endIndex; i++) {
-      this.rowsRepr[i].ancestor_collapsed = true
-    }
-  } else {
-      let i=startIndex+1
-      while (i < endIndex) {
-        var node_length = this._RRLen(i)
-        // set ancestor_collapsed stated for both start and end for a node that span multiple lines
-        // if on a node spanning multiple lines, the end brace occurs at [i+ node_length - 1]
-        // Also skip so many rows so that collapse state is not changed, since we are not opening recursively
-        this.rowsRepr[i].ancestor_collapsed = false
-        if (node_length !== null && node_length > 0) {
-          this.rowsRepr[i + node_length -1].ancestor_collapsed = false
-          if (this.rowsRepr[i].is_collapsed)
-            i += node_length - 1
-        }
-        i = i + 1
-      }
-  }
-
-  this.update_collapsedtext(startIndex)
-  return startIndex
-}
-
-ViewModel.prototype.recursive_collapse = function (rowIndex, toCollapse) {
-  var range = this.get_node_range( rowIndex)
-  var startIndex = range[0], endIndex = range[1]
-
-  this.rowsRepr[startIndex].is_collapsed = toCollapse ? true : false // for row with opening brace
-  this.rowsRepr[endIndex].is_collapsed   = toCollapse ? true : false // for row with closing brace
-
-  for(var i = startIndex+1; i < endIndex; ++i) {
-    var node_length = this._RRLen(i)
-
-    this.rowsRepr[i].ancestor_collapsed = toCollapse
-    if (node_length !== null && node_length > 0) {
-      this.rowsRepr[i].is_collapsed = toCollapse
-      this.rowsRepr[i+node_length-1].is_collapsed = toCollapse
-    }
-  }
-
-  this.update_collapsedtext(startIndex)
-  return startIndex
-}
-
-ViewModel.prototype.prev_diff = function (i) {
-  const maxindex = this.rowsRepr.length - 1
-  var index = i<=1 ? maxindex : i-1
-
-  var next = this._RRFindLastIndex(is_different, 0, index+1)
-  if (next === -1) {
-    next = this._RRFindLastIndex(is_different, index)
-  }
-  return next
-}
-
-ViewModel.prototype.next_diff = function (i) {
-  const maxindex = this.rowsRepr.length - 1
-  var index = i>=maxindex ? 1 : i+1
-
-  var next = this._RRFind(is_different, index)
-  if (next === -1) {
-    next = this._RRFind(is_different, 1)
-  }
-
-  return next
-}
-
-ViewModel.prototype.prev_row = function(rowIndex) {
-  if (rowIndex<=1)
-    return 1
-
-  for (var i = rowIndex-1; i>1; --i) {
-    if (!this.is_hidden(i))
-      break
-  }
-
-  return i
-}
-
-ViewModel.prototype.next_row = function(rowIndex) {
-  const maxlen = this.rowsRepr.length-1
-  if (rowIndex>=maxlen)
-    return maxlen
-
-  for (var i = rowIndex+1; i<maxlen-1; ++i) {
-    if (!this.is_hidden(i))
-      break
-  }
-  return i
-
-}
-
-ViewModel.prototype.prev_obj = function(rowIndex) {
-  var len = this._RRLen(rowIndex)
-  var path = this._RRPath(rowIndex)
-
-  if (len > 0) {
-    rowIndex = this._RRFind( x => x.linerepr.length>0 && _.isEqual(x.linerepr.path, path ) )
-    path = this._RRPath(rowIndex)
-  }
-  console.assert( rowIndex !== -1, "path for object start not found" )
-
-  var nextind = this._RRFindLastIndex( x => x.linerepr.length!==null && x.linerepr.length>0 && x.linerepr.path.length<=path.length , 0, rowIndex)
-
-  return nextind === -1 ? 1 : nextind
-}
-
-ViewModel.prototype.next_obj = function(rowIndex) {
-  var len = this._RRLen(rowIndex)
-  var path = this._RRPath(rowIndex)
-
-  if (len > 0)
-    rowIndex = this._RRFind( x => x.linerepr.length<0 && _.isEqual(x.linerepr.path, path ) )
-
-  console.assert( rowIndex !== -1, "path for object closing brace not found")
-
-  var nextind = this._RRFind( x => x.linerepr.length!==null && x.linerepr.length>0 , rowIndex+1)
-
-  return nextind === -1 ? this.rowsRepr.length-1 : nextind
-}
-
-
-ViewModel.prototype.obj_open = function(rowIndex) {
-  var parent = this._RRPath(rowIndex).slice(0,-1)
-  return this._RRFind( x => _.isEqual(x.linerepr.path, parent) )
-}
-
-ViewModel.prototype.obj_close = function(rowIndex) {
-  var parent = this._RRPath(rowIndex).slice(0,-1)
-  return this._RRFind( x => x.linerepr.length<0 && _.isEqual(x.linerepr.path, parent) )
-}
-
-
-ViewModel.prototype.update_collapsedtext = function (index) {
-  var range = this.get_node_range(index)
-  var start = range[0], end = range[1]
-  for (var i = start; i <= end; i++) {
-    var node_length = this._RRLen(i)
-    if (node_length &&  (node_length>0) ) {
-        var toCollapse = this.rowsRepr[i].is_collapsed
-        this.set_collapsedtext(i, 0, toCollapse)
-        this.set_collapsedtext(i, 1, toCollapse)
-    }
-  }
-}
-
-
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports={ ViewModel };
-} else {   // we're in a browser
-  window.ViewModel = ViewModel
-}
-
-})();
-
-
-
-
-},{"lodash":"lodash"}],246:[function(require,module,exports){
-/*
-
-jsondiffgui:
-jsondiffgui Copyright (c) 2023 Kaushik Sundararajan
-https://github.com/kaushik137/jsondiffgui.git
-
-The MIT License (MIT)
-
-Copyright (c) 2023 Kaushik Sundararajan
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-*/
-
-/* jshint esversion: 6                                  */
-/* jshint  undef:true                                  */
-/* jshint  curly:false                                  */
-/* global require:true */
-/* global module:true, get_path_range:true, generate_diff:true */
-/* experimental:  [asyncawait, asyncreqawait]  */
-
-
-(function(){
-
-function assert() { }
-
-const _=require('lodash')
-
-class LineRepr {
-  constructor(path, length ) {
-    this.path=path; this.length=length; // this.lastkey=lastkey
-  }
-  // first_term() { }
-  // last_term() { }
-  str(jo) {
-    var path=this.path
-    var obj = (path.length > 0 ) ? _.get(jo , path) : jo
-    if (obj===undefined) return undefined
-    assert ( (typeof(obj)==='object' || this.length===null), "length should be 1 for scalar paths")
-    var val=obj
-    var key=(path.length>=1) ? path[path.length-1] : ""
-    if (typeof(obj)==='object') {
-      if (this.length===null)
-        val=JSON.stringify(obj)
-      else {
-        if (this.length>0)
-          val=Array.isArray(obj) ? "[" : "{"
-        else if (this.length<0)
-          { val=Array.isArray(obj) ? "]" : "}" ; key="" }
-        else
-          assert(true, "this.length shouldn't be 1 for multiline paths")
-      }
-    }
-
-    var indent="  ".repeat(path.length)
-    key=(key==="" || Number.isInteger(Number(key))) ? "" : (key+": ") // Todo: Ideally check if parent is of type array
-    return (val==="__deleted__") ? undefined : indent+key+val
-  }
-}
-
-const is_key_integer = function (path) {
-  const re_number = /^(0|[1-9]\d*)$/
-
-  const node_key = path.at(-1)
-  return node_key ? node_key.match(re_number) : null
-}
-
-function lodash_get(obj, path) {
-  return path.length === 0 ? obj : _.get(obj, path)
-}
-
-const isPathSpecMultiline = function (jo, path) {
-  "use strict";
-  var multiline=0
-  const toCompact = 0 // Compact feature to turn on if needed
-  var obj = (path.length > 0 ) ? _.get(jo ,path) : jo
-  if (typeof(obj)==='object') {
-    if (!_.isEmpty(obj)) {
-      multiline=1
-      if (toCompact>=1 && Object.values(obj).every((x) => typeof(x)!=='object') )
-        multiline=0
-    }
-  }
-  return multiline
-}
-
-const get_linerepr_for_node = function (jo, node_path) {
-  "use strict";
-  var length=isPathSpecMultiline(jo, node_path) ? 1 : null
-  var d={ path: node_path, length: length }
-
-  return d
-}
-
-const next_key = function (inObj, par, inKey=null) {
-    var obj = (par.length > 0 ) ? _.get(inObj ,par) : inObj
-
-    var outKey=null
-    if (typeof(obj)==='object') {
-        var arr=Object.keys(obj)
-        if (arr.length===0)
-            outKey=null
-        else if (inKey===null)
-            outKey=arr[0]
-        else {
-            var i=arr.indexOf(String(inKey))
-            assert( i>=0, `next_key: par=${par} inKey=${inKey} is invalid path` )
-            outKey= (i>=0 && i<arr.length-1) ? arr[i+1] : null
-        }
-    }
-
-    return outKey
-}
-
-const next_linerepr = function (inObj, line) {
-  "use strict";
-  if (line===null)
-    return get_linerepr_for_node(inObj, [])
-
-  var path=line.path, nLine=null
-  if (line.length===null && path.length>0) {
-      let nKey=next_key(inObj, path.slice(0,-1), path[path.length-1])
-      path.pop()
-      if (nKey)
-          nLine=get_linerepr_for_node(inObj, path.concat([nKey]))
-      else
-          nLine={ path: path, length: -1 }
-  } else {
-    // assert( Object.keys(obj).length>0, "Fatal Error: when line.length!=null object can't be empty. Must have got atleast one key here")
-    if (line.length>0) { // opening a brace for an object
-      let nKey=next_key(inObj, path, null)
-      assert( nKey, "Fatal Error: Must have got a key here")
-      path.push(nKey)
-      nLine=get_linerepr_for_node(inObj, path)
-    } else { // line.length<0  -- closing a brace for some path
-      if (path.length>0)
-      {
-        var nKey=next_key(inObj, path.slice(0,-1), path[path.length-1])
-        path.pop()
-        if (nKey)
-            nLine=get_linerepr_for_node(inObj, path.concat([nKey]))
-        else
-            nLine={ path: path, length: -1 }
-      }
-    }
-  }
-
-  return nLine
-}
-
-const get_diffrepr_for_line = function (left, right, linerepr, par_row) {
-    var lobj = (linerepr.path.length > 0 ) ? _.get(left,  linerepr.path) : left
-    var robj = (linerepr.path.length > 0 ) ? _.get(right, linerepr.path) : right
-    // ToAssert lobj && robj  !== undefined
-    // Todo : why? we shouldnt force deleted paths to be single line always.
-    if (lobj===undefined || lobj==="__deleted__" || robj===undefined || robj==="__deleted__" )
-      linerepr.length=null
-
-    var l=new LineRepr(linerepr.path, linerepr.length ).str(left)
-    var r=new LineRepr(linerepr.path, linerepr.length ).str(right)
-
-    // Todo: Handle replace of different object types
-    var opcodes=[ "equal", "equal" ]
-    assert( (l!==undefined || r!==undefined) , `FatalError: For path ${linerepr.path}, both left and right paths are missing`)
-    if (l===undefined || l==="__deleted__") {
-      opcodes=[ "empty", "insert" ]
-      l=""
-    }
-    if (r===undefined || r==="__deleted__" ) {
-      opcodes=[ "delete", "empty" ]
-      r=""
-    }
-
-    if (l!=="" && r!=="" && l!==r)
-      opcodes=[ "replace", "replace" ]
-
-    var tree_unequal=null
-    if (opcodes[0] === 'equal' && opcodes[1] === 'equal' && linerepr.length!==null && linerepr.length>=1) {
-      // At the start of a vector field
-      tree_unequal = _.isEqual( lobj, robj) ? 0 : 1
-    }
-
-    var actual_paths = [ "same", "same" ]
-    actual_paths[0] = (lobj === "__deleted__") ? null : get_actual_paths(left, 0, linerepr, par_row)
-    actual_paths[1] = (robj === "__deleted__") ? null : get_actual_paths(right, 1, linerepr, par_row)
-
-    return { l : l, r: r, opcodes : opcodes, tree_unequal : tree_unequal, actual_paths: actual_paths }
-}
-
-get_path_range = function (lineIndex, len) {
-  "use strict";
-  if (len === null)
-    return [ lineIndex, lineIndex]
-
-  var offset = (len > 0) ? len-1 : len+1
-  var startIndex, endIndex
-
-  if (offset > 0) {
-    // An object opening brace
-    startIndex = lineIndex
-    endIndex = lineIndex + offset
-  } else {
-    // An object closing brace
-    endIndex = lineIndex
-    startIndex = lineIndex + offset
-  }
-
-  return [ startIndex, endIndex ]
-}
-
-const get_path_length = function (Rows, path_index) {
-  "use strict";
-  var len = null
-  var linerepr = Rows[path_index].linerepr
-
-  if (linerepr.length !== null) {
-    var areNegatives = function (x,y) { return (y*x < 0) ? true : false }
-    var matchForCurRowPath = function (x) {
-      return _.isEqual(x.linerepr.path,linerepr.path) && areNegatives(x.linerepr.length, linerepr.length)
-    }
-
-    var matchIndex = 1 + Rows.slice(1).findIndex(x => matchForCurRowPath(x) )
-    if (linerepr.length > 0)
-      len = matchIndex - path_index + 1
-    else {
-      len = path_index - matchIndex + 1
-      len = (linerepr.length > 0) ? len : -len
-    }
-  }
-
-  return len
-
-}
-
-const get_equal_sections = function (Rows, ctxtSize) {
-  var isequal = (row => row.opcodes[0]==='equal' && row.opcodes[1]==='equal')
-  var next_row = ( (start,fn) => { var i=Rows.slice(start).findIndex(fn); return (i===-1||start===null) ? null : start + i } )
-  var is_notequal = (row => !isequal(row) )
-
-  var r1=0, r2=0
-  var equal_sections=[]
-  var minSize=ctxtSize*2
-
-  do
-  {
-    r1 = next_row(r2, isequal)
-    r2 = next_row( is_notequal)
-
-    if (r2===null || r2 - r1 >= minSize)
-      equal_sections.push( [ r1, r2 ] )
-
-  }
-  while (r1!==null && r2!==null);
-
-  return equal_sections
-}
-
-const get_actual_paths = function (left, a_path_ind, linerepr, par_row) {
-  var ret_path = "same"
-  if (par_row)
-  {
-    var parent_a_p = par_row.actual_paths[a_path_ind]
-    if (parent_a_p === "same")
-      parent_a_p = par_row.linerepr.path
-
-    ret_path = JSON.parse(JSON.stringify(parent_a_p))
-    ret_path.push(get_actual_key(left, linerepr.path) )
-  }
-
-  return ret_path
-}
-
-function get_actual_key(obj, path) {
-  const del = "__deleted__"
-
-  if (path.length === 0 ) return null
-  var actual_key = path.at(-1)
-
-  if (is_key_integer(path)) {
-    var arr = lodash_get(obj, path.slice(0,-1))
-    const index = Number(path.at(-1))
-    var del_count = arr.slice(0,index).reduce( ((acc, val) => { return (val === del) ? ++acc : acc; } ), 0)
-    const real_index = index - del_count
-    actual_key = String(real_index)
-  }
-
-  return actual_key
-}
-
-const get_parent_index = function (rows, path) {
-  if (path.length === 0) return null
-
-  const parent = path.slice(0,-1)
-  const fn = ( x => x.linerepr.length>0 && _.isEqual(x.linerepr.path, parent) )
-  const ind = rows.findLastIndex(fn)
-  console.assert( ind !== -1, "Parent node path not found")
-  return ind
-}
-
-
-generate_diff = function (left,right, toCompact=0) { // jshint unused:false
-  var linerepr=null
-  var null_row={ linerepr: {path: null, length: null}, cells: [ 0, "", 0, "" ], opcodes: [ "equal", "equal" ] , actual_paths: ["same", "same"], is_collapsed : false, ancestor_collapsed : false }
-  var Rows=[ null_row ]
-  var prevline = [0,0]
-
-  while (linerepr=next_linerepr(left, linerepr)) {
-    var par_ind = get_parent_index(Rows, linerepr.path)
-    var difrepr = get_diffrepr_for_line(left, right, linerepr, par_ind ? Rows[par_ind] : null)
-    var row=JSON.parse(JSON.stringify(null_row))
-    row.linerepr=linerepr
-    row.cells[0]=prevline[0]+1
-    row.cells[1]=difrepr.l
-    row.cells[2]=prevline[1]+1
-    row.cells[3]=difrepr.r
-    if (row.cells[1])
-      prevline[0] = row.cells[0]
-    if (row.cells[3])
-      prevline[1] = row.cells[2]
-    row.opcodes[0]=difrepr.opcodes[0]
-    row.opcodes[1]=difrepr.opcodes[1]
-    row.actual_paths[0] = difrepr.actual_paths[0]
-    row.actual_paths[1] = difrepr.actual_paths[1]
-    row.tree_unequal=difrepr.tree_unequal
-    Rows.push(JSON.parse(JSON.stringify(row)))
-  }
-
-  for (var i = 1; i < Rows.length; ++i) {
-    Rows[i].linerepr.length = get_path_length( Rows, i )
-  }
-
-  return Rows
-}
-
-
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports={
-  next_key,
-  LineRepr,
-  get_linerepr_for_node,
-  next_linerepr,
-  get_path_range,
-  get_equal_sections,
-  generate_diff,
-  get_diffrepr_for_line
-  };
-} else {   // we're in a browser
-  window.get_path_range = get_path_range;
-  window.generate_diff = generate_diff;
-}
-
-})();
-
-
-},{"lodash":"lodash"}],247:[function(require,module,exports){
-'use strict';
-// For more information about browser field, check out the browser field at https://github.com/substack/browserify-handbook#browser-field.
-
-var styleElementsInsertedAtTop = [];
-
-var insertStyleElement = function(styleElement, options) {
-    var head = document.head || document.getElementsByTagName('head')[0];
-    var lastStyleElementInsertedAtTop = styleElementsInsertedAtTop[styleElementsInsertedAtTop.length - 1];
-
-    options = options || {};
-    options.insertAt = options.insertAt || 'bottom';
-
-    if (options.insertAt === 'top') {
-        if (!lastStyleElementInsertedAtTop) {
-            head.insertBefore(styleElement, head.firstChild);
-        } else if (lastStyleElementInsertedAtTop.nextSibling) {
-            head.insertBefore(styleElement, lastStyleElementInsertedAtTop.nextSibling);
-        } else {
-            head.appendChild(styleElement);
-        }
-        styleElementsInsertedAtTop.push(styleElement);
-    } else if (options.insertAt === 'bottom') {
-        head.appendChild(styleElement);
-    } else {
-        throw new Error('Invalid value for parameter \'insertAt\'. Must be \'top\' or \'bottom\'.');
-    }
-};
-
-module.exports = {
-    // Create a <link> tag with optional data attributes
-    createLink: function(href, attributes) {
-        var head = document.head || document.getElementsByTagName('head')[0];
-        var link = document.createElement('link');
-
-        link.href = href;
-        link.rel = 'stylesheet';
-
-        for (var key in attributes) {
-            if ( ! attributes.hasOwnProperty(key)) {
-                continue;
-            }
-            var value = attributes[key];
-            link.setAttribute('data-' + key, value);
-        }
-
-        head.appendChild(link);
-    },
-    // Create a <style> tag with optional data attributes
-    createStyle: function(cssText, attributes, extraOptions) {
-        extraOptions = extraOptions || {};
-
-        var style = document.createElement('style');
-        style.type = 'text/css';
-
-        for (var key in attributes) {
-            if ( ! attributes.hasOwnProperty(key)) {
-                continue;
-            }
-            var value = attributes[key];
-            style.setAttribute('data-' + key, value);
-        }
-
-        if (style.sheet) { // for jsdom and IE9+
-            style.innerHTML = cssText;
-            style.sheet.cssText = cssText;
-            insertStyleElement(style, { insertAt: extraOptions.insertAt });
-        } else if (style.styleSheet) { // for IE8 and below
-            insertStyleElement(style, { insertAt: extraOptions.insertAt });
-            style.styleSheet.cssText = cssText;
-        } else { // for Chrome, Firefox, and Safari
-            style.appendChild(document.createTextNode(cssText));
-            insertStyleElement(style, { insertAt: extraOptions.insertAt });
-        }
-    }
-};
-
-},{}],"jq":[function(require,module,exports){
+},{"available-typed-arrays":31,"call-bind/callBound":85,"for-each":136,"gopd":140,"has-tostringtag/shams":144,"is-typed-array":182}],"jq-web":[function(require,module,exports){
 (function (process,Buffer,__dirname){(function (){
 
 var jq = (
@@ -34871,92 +35038,7 @@ if (typeof exports === 'object' && typeof module === 'object')
       exports["jq"] = jq;
     
 }).call(this)}).call(this,require('_process'),require("buffer").Buffer,"/../3rdparty/jq-web")
-},{"_process":195,"buffer":69,"crypto":92,"fs":65,"path":188}],"jqutils":[function(require,module,exports){
-/*
-
-jsondiffgui:
-jsondiffgui Copyright (c) 2023 Kaushik Sundararajan
-https://github.com/kaushik137/jsondiffgui.git
-
-The MIT License (MIT)
-
-Copyright (c) 2023 Kaushik Sundararajan
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-*/
-
-/* jshint esversion: 6                                  */
-/* jshint  undef:true                                  */
-/* jshint  curly:false                                  */
-/* exported helloval                                    */
-/* global require:true */
-/* global module:true */
-
-(function(){
-var patchArr='def patch_arrays($op): walk(if ( (type=="array" ) and (length == 2 ) and (.[0]==" " or.[0]=="-" or .[0]=="+" or .[0]=="~" )   ) then if ( .[0] == $op ) then "__deleted__" else .[1] end else . end ) ; '
-
-var fixKeys='def fixKeys($tag): ["__added", "__deleted"] as $a | ( if $tag=="__old" then ($a|reverse) else $a end ) as [$x,$y] | with_entries( if (.key|endswith($y)) then .value|="__deleted__" else . end | .key|=rtrimstr($x)  | .key|=rtrimstr($y)) ; '
-
-var patchObj=fixKeys + 'def patch_obj($tag): (.. | select(has($tag)?)  )|=.[$tag] | walk(if type=="object" then fixKeys($tag) else . end) ; '
-
-/*
-async function patch_delta(b12) {
-  const jq = await require('jq')
-  const _ = await require('lodash')
-
-  async function patch_for_base(b12) {
-    return jq.promised.json( b12, patchArr + patchObj +  'patch_arrays("+") | patch_obj("__old")' ).then( res => _.cloneDeep(res) ).catch(x => console.log("Err: ",x))
-  }
-
-  async function patch_for_new(b12) {
-    return jq.promised.json( b12, patchArr + patchObj +  'patch_arrays("-") | patch_obj("__new")' ).then( res => _.cloneDeep(res) ).catch(x => console.log("Err: ",x))
-  }
-
-  var allRes = await Promise.all([ patch_for_base(b12), patch_for_new(b12)]);
-  return { left: allRes[0], right: allRes[1] }
-}
-*/
-
-async function patch_delta(b12) {
-  const jq=require('jq')
-  const _=require('lodash')
-
-  var d = {}
-  d.left  = await jq.promised.json( b12, patchArr + patchObj +  'patch_arrays("+") | patch_obj("__old")' ).then( res => _.cloneDeep(res) ).catch(x => console.log("Err: ",x))
-  d.right = await jq.promised.json( b12, patchArr + patchObj +  'patch_arrays("-") | patch_obj("__new")' ).then( res => _.cloneDeep(res) ).catch(x => console.log("Err: ",x))
-
-  return d
-}
-
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports={
-  patch_delta
-  };
-} else {   // we're in a browser
-  window.patch_delta = patch_delta;
-}
-
-})();
-
-},{"jq":"jq","lodash":"lodash"}],"json_diff":[function(require,module,exports){
+},{"_process":208,"buffer":82,"crypto":105,"fs":78,"path":201}],"json_diff":[function(require,module,exports){
 const { SequenceMatcher } = require('@ewoudenberg/difflib')
 const { extendedTypeOf, roundObj } = require('./util')
 const { colorize, colorizeToCallback } = require('./colorize')
@@ -35307,7 +35389,7 @@ function diffString (obj1, obj2, options = {}) {
 
 module.exports = { diff, diffString, colorize, colorizeToCallback }
 
-},{"./colorize":170,"./util":171,"@ewoudenberg/difflib":1}],"lodash":[function(require,module,exports){
+},{"./colorize":183,"./util":184,"@ewoudenberg/difflib":14}],"lodash":[function(require,module,exports){
 (function (global){(function (){
 /**
  * @license
@@ -35449,4 +35531,4 @@ u&&(q.prototype[t]=function(){var t=this.__wrapped__,o=e?[1]:arguments,f=t insta
 var t=hl[n],r=/^(?:push|sort|unshift)$/.test(n)?"tap":"thru",e=/^(?:pop|shift)$/.test(n);q.prototype[n]=function(){var n=arguments;if(e&&!this.__chain__){var u=this.value();return t.apply(yh(u)?u:[],n)}return this[r](function(r){return t.apply(yh(r)?r:[],n)})}}),ee(Bt.prototype,function(n,t){var r=q[t];if(r){var e=r.name+"";yl.call(is,e)||(is[e]=[]),is[e].push({name:t,func:r})}}),is[Ju(Y,hn).name]=[{name:"wrapper",func:Y}],Bt.prototype.clone=Gt,Bt.prototype.reverse=Ht,Bt.prototype.value=Jt,q.prototype.at=Js,
 q.prototype.chain=Xo,q.prototype.commit=nf,q.prototype.next=tf,q.prototype.plant=ef,q.prototype.reverse=uf,q.prototype.toJSON=q.prototype.valueOf=q.prototype.value=of,q.prototype.first=q.prototype.head,Ll&&(q.prototype[Ll]=rf),q},ge=ve();"function"==typeof define&&"object"==typeof define.amd&&define.amd?(Xr._=ge,define(function(){return ge})):te?((te.exports=ge)._=ge,ne._=ge):Xr._=ge}).call(this);
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[242,244,241,239,240,243,245,238,246]);
+},{}]},{},[6,3,7]);

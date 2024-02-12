@@ -4,23 +4,23 @@ https://github.com/kaushik137/jsondiffgui.git
 jsondiffgui released under MIT license
 Based on jq-web, json-diff, jsdifflib
     jq-web:
+        Used to process json objects
         https://github.com/fiatjaf/jq-web.git
         Copyright (c) 2019 fiatjaf <fiatjaf@gmail.com>
         license: ISC
 
-        used to transform json objects
     json-diff:
+        Used to compute a diff of two jsons
         https://github.com/andreyvit/json-diff.git
         Copyright (c) 2015 Andrey Tarantsov
         license: MIT
 
-        used to compute a diff of two jsons
     jsdifflib v1.0:
+        Three functions celt, telt, ctelt are used. The file diffview.css is used to style the html table.
         <http://snowtide.com/jsdifflib>
         Copyright (c) 2007, Snowtide Informatics Systems, Inc.
         license: BSD
 
-        Three functions celt, telt, ctelt are used in jsondiffgui source
 
 
 jsondiffgui:
