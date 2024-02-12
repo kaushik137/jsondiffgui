@@ -43,7 +43,7 @@ var patchObj=fixKeys + 'def patch_obj($tag): (.. | select(has($tag)?)  )|=.[$tag
 
 /*
 async function patch_delta(b12) {
-  const jq = await require('jq')
+  const jq = await require('jq-web')
   const _ = await require('lodash')
 
   async function patch_for_base(b12) {
@@ -60,7 +60,7 @@ async function patch_delta(b12) {
 */
 
 async function patch_delta(b12) {
-  const jq=require('jq')
+  const jq=require('jq-web')
   const _=require('lodash')
 
   var d = {}

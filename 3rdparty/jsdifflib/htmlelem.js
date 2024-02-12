@@ -51,8 +51,13 @@ function ctelt (name, clazz, text) {
   return e;
 }
 
-window.celt = celt;
-window.telt = telt;
-window.ctelt = ctelt;
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { celt, telt, ctelt }
+} else {   // we're in a browser
+  window.celt = celt;
+  window.telt = telt;
+  window.ctelt = ctelt;
+}
+
 
 })();
