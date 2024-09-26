@@ -212,6 +212,9 @@ JsondiffViewModel.prototype.prev_diff = function (i) {
   var next = this._RRFindLastIndex(is_different, 0, index+1)
   if (next === -1) {
     next = this._RRFindLastIndex(is_different, index)
+    if (next === -1) {
+      next = 1
+    }
   }
   return next
 }
@@ -223,6 +226,9 @@ JsondiffViewModel.prototype.next_diff = function (i) {
   var next = this._RRFind(is_different, index)
   if (next === -1) {
     next = this._RRFind(is_different, 1)
+    if (next === -1) {
+      next = maxindex
+    }
   }
 
   return next

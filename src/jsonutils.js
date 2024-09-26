@@ -290,8 +290,9 @@ function get_actual_key(obj, path) {
   if (path.length === 0 ) return null
   var actual_key = path.at(-1)
 
-  if (is_key_integer(path)) {
-    var arr = lodash_get(obj, path.slice(0,-1))
+  var arr = lodash_get(obj, path.slice(0,-1))
+  // if (is_key_integer(path)) {
+  if (Array.isArray(arr)) {
     const index = Number(path.at(-1))
     var del_count = arr.slice(0,index).reduce( ((acc, val) => { return (val === del) ? ++acc : acc; } ), 0)
     const real_index = index - del_count

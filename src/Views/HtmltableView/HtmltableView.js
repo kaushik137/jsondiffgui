@@ -48,12 +48,7 @@ const HtmltableView = function (json_delta, toCompact=0) {
   this.viewmodel = new JsondiffViewModel(json_delta, toCompact)
   console.log("HtmltableView: Number of Rows =", this.viewmodel.rowsRepr.length)
   this.table = create_table(this.viewmodel.rowsRepr)
-  this.change_selected_index(1)
   setTableHandler(this)
-
-  this.recursive_collapse(1)
-  this.toggle_collapse(1)
-  this.redraw_node(1)
 
   return this
 }
@@ -154,7 +149,16 @@ const create_jsondiff_htmltable = async function (basetxt, newtxt, toCompact=0) 
   var json_delta = await JsonDelta(basetxt, newtxt)
   var view = new HtmltableView(json_delta, toCompact)
 
-  return view.table
+  view.recursive_collapse(1)
+
+  const nextdiff = view.next_diff(1)
+  console.log("next diff=",nextdiff)
+  const ancestor_node = view.viewmodel.expand_to_node(nextdiff)
+  view.change_selected_index(nextdiff)
+  view.redraw_node(1)
+  const nearby = view.viewmodel.next_row(nextdiff)
+
+  return { table : view.table, scrollrow: nearby }
 }
 
 jsondiffgui.create_jsondiff_htmltable = create_jsondiff_htmltable

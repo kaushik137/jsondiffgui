@@ -73,13 +73,13 @@ table.diff tbody td {
 	width: 45%;
 }
 table.diff .empty {
-	background-color:#DDD;
+	background-color:#F66;
 }
 table.diff .replace {
-	background-color:#FD8
+	background-color:#F66
 }
 table.diff .delete {
-	background-color:#E99;
+	background-color:#F66;
 }
 table.diff .skip {
 	background-color:#EFEFEF;
@@ -87,7 +87,7 @@ table.diff .skip {
 	border-right:1px solid #BBC;
 }
 table.diff .insert {
-	background-color:#9E9
+	background-color:#F66
 }
 table.diff .tree_unequal {
 	background-color:#CC8;

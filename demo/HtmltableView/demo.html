@@ -1,36 +1,83 @@
 <!doctype html>
-<html>
+<html lang="en">
+
   <head>
-    <meta charset="utf-8">
     <title>Diff jsons</title>
     <link rel="icon" href="data:;base64,iVBORwOKGO=" />
+    <style type="text/css">
+    .textInput {
+      display: block;
+      width: 49%;
+      float: left;
+    }
+    textarea {
+      width:100%;
+      height:300px;
+    }
+    .spacer {
+      margin-left: 10px;
+    }
+    #diffoutput {
+      width: 100%;
+    }
+
+    .tabindent { margin-left: 40px; }
+    </style>
 
     <script type="text/javascript" src="../../dist/jsondiffgui-wasm-min-bundle.js"></script>
-
-
-    <style type="text/css">
-      #diffoutput { width: 100%; }
-      .tabindent { margin-left: 40px; }
-    </style>
 
   </head>
 
   <body>
 
+    <div>
+      Jsons loaded for demo. Edit text below or diff your own files
+      <a href="https://github.com/kaushik137/jsondiffgui" style="float:right" > Download source from github </a>
+      <br>
+
+      <div class="textInput">
+        <textarea id="baseText" ></textarea>
+      </div>
+      <div class="textInput spacer">
+        <textarea id="newText" ></textarea>
+      </div>
+
+    </div>
+
+    <div>
+      <label for="left">Left &nbsp;  </label>
+      <input type="file" id="left" name="left" />
+      <label for="right">Right</label>
+      <input type="file" id="right" name="right" />
       <p>
-        <strong> Navigation </strong>
+      <button onclick="diffupdate()"> Generate Diff </button>
+      <strong> Files are not uploaded. The diff is computed within the browser </strong>
+      </p>
+    </div>
+
+    <button onclick="toggleNavigation()" style="text-align: centre" > SHOW COMMANDS TO NAVIGATE DIFF</button>
+
+    <script>
+      function toggleNavigation(e) {
+              var elem = byId("navigation")
+              if (elem.style.display === 'block')
+                elem.style.display = 'none'
+              else
+                elem.style.display = 'block'
+
+            }
+    </script>
+
+    <br>
+
+    <div id="navigation" style="display: none">
+    <strong> First select the table. Table should have a colored border before commands are issued </strong>
 
       <br>
-        To use key strokes, first select the table either by using tab or selecting a row.
-      <br>
-        To select a row click on the data cells of the row(cells that are NOT line numbers).
-      <br>
-        The table and rows when selected get a colored border.
+        To select a row click on the data cells (they contain the json text).
       <br>
       <br>
 
-      ( Select the table and make sure the table has a colored border before issuing these commands )
-      <br>
       Move selection up/down:<br>
       <span class="tabindent" > Keys k/j &nbsp;  OR &nbsp; select a row by clicking on row data cell </span>
 
@@ -67,7 +114,7 @@
       <br>
       beginning/end of current object:<br>
       <span class="tabindent" >
-      [ / ]
+      [ &nbsp; &nbsp; goto opening brace; &nbsp; ] &nbsp; &nbsp; goto closing brace
       </span>
 
       <br>
@@ -82,31 +129,79 @@
       Hover mouse over row cell header
       </span>
 
-        <br>
-        <strong> Ensure the table is selected and the table has a colored border </strong>
-
       </p>
 
+    </div>
 
     <div id="diffoutput"> </div>
 
     <script>
-      async function update_diff() {
-        var left  = await fetch('left.json').then(x => x.json())
-        var right = await fetch('right.json').then(x => x.json())
 
-
-        var base=JSON.stringify(left,null,2)
-        var newtxt=JSON.stringify(right,null,2)
-
-        var theDiv=document.getElementById("diffoutput");
-        jsondiffgui.create_jsondiff_htmltable( base, newtxt).then( x => { theDiv.appendChild(x) ; } )
+    const textFields = { 'left' : 'baseText', 'right' : 'newText' }
+    function loadTextArea(inputId) {
+      var reader = new FileReader()
+      reader.onload = function (e) {
+              document.getElementById(textFields[inputId]).value = e.target.result
       }
 
-    update_diff()
+      var file = document.getElementById(inputId).files[0]
+      reader.readAsText(file)
+    }
+
+    function onInputChange(e) {
+        console.log(e.target)
+        loadTextArea(e.target.id)
+    }
+
+    document.getElementById('left').addEventListener('change', onInputChange)
+    document.getElementById('right').addEventListener('change', onInputChange)
 
     </script>
 
-  </body>
 
+    <script>
+      function byId(id) {
+        return document.getElementById(id)
+      }
+
+
+      function diffupdate() {
+        const divName = "diffoutput"
+        var basetxt = byId("baseText").value
+        var newtxt = byId("newText").value
+        // var contextSize = byId("contextSize").value
+
+        var cur_table = document.querySelector('#'+divName+' table')
+        if (cur_table)
+          cur_table.parentNode.removeChild(cur_table)
+
+        var theDiv = byId(divName)
+
+        jsondiffgui.create_jsondiff_htmltable( basetxt, newtxt)
+          .then(x => { theDiv.appendChild(x["table"]); return x } )
+          .then(x => { var index=x["scrollrow"];
+                       var table=x["table"]
+                       table.focus()
+                       table.rows[index].scrollIntoView(false)
+                     } )
+
+      }
+
+
+    </script>
+
+
+    <script>
+      async function loadDefaultJsons() {
+        byId("baseText").value = await fetch('left.json').then(x => x.text())
+        byId("newText").value = await fetch('right.json').then(x => x.text())
+      }
+
+      loadDefaultJsons()
+
+    </script>
+
+
+
+  </body>
 </html>

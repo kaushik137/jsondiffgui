@@ -3,7 +3,7 @@
 "movies": [
   {
     "title": "Coyote Ugly",
-    "year": 2000,
+    "year": 200,
     "cast": [
       "Piper Perabo",
       "Adam Garcia",
@@ -16,7 +16,7 @@
   },
   {
     "title": "Colorado Territory",
-    "year": 1941,
+    "year": 1949,
     "cast": [
       "Joel McCrea",
       "Virginia Mayo"
@@ -31,6 +31,20 @@
     "cast": [
       "Adrienne King",
       "Amy Steel"
+    ],
+    "genres": [
+      "Horror"
+    ]
+  },
+  {
+    "title": "The Beast from 20,000 Fathoms",
+    "year": 1953,
+    "cast": [
+      "Paula Raymond",
+      "Cecil Kellaway"
+    ],
+    "genres": [
+      "Science Fiction"
     ]
   },
   {
@@ -220,19 +234,8 @@
     ]
   },
   {
-    "title": "The Brown Bunny",
-    "year": 1903,
-    "cast": [
-      "Vincent Gallo",
-      "Chloë Sevigny"
-    ],
-    "genres": [
-      "Drama"
-    ]
-  },
-  {
     "title": "Busgirl",
-    "year": 1993,
+    "year": 2006,
     "cast": [
       "Leah Miller"
     ],
@@ -291,7 +294,6 @@
   },
   {
     "title": "The Skeleton Twins",
-    "year": 2014,
     "cast": [
       "Kristen Wiig",
       "Bill Hader",
@@ -329,7 +331,7 @@
       "David Dastmalchian"
     ],
     "genres": [
-      "Fiction",
+      "Science Fiction",
       "Thriller"
     ]
   },
@@ -369,11 +371,9 @@
   },
   {
     "title": "Hair Show",
-    "year": 1904,
+    "year": 2004,
     "cast": [
-      "Kellita Smith",
       "Mo'Nique",
-      "David Ramsey",
       "Gina Torres"
     ],
     "genres": [
@@ -520,7 +520,7 @@
     "year": 1922,
     "cast": [
       "Constance Talmadge",
-      "H. Ford"
+      "Harrison Ford"
     ],
     "genres": [
       "Drama"
@@ -1046,7 +1046,9 @@
     "year": 2004,
     "cast": [
       "Hugh Jackman",
+      "Kate Beckinsale",
       "Richard Roxburgh",
+      "David Wenham",
       "Will Kemp",
       "Kevin J. O'Connor",
       "Shuler Hensley"
@@ -1057,11 +1059,12 @@
   },
   {
     "title": "My Big Fat Greek Wedding",
-    "year": 2001,
+    "year": 2002,
     "cast": [
       "Nia Vardalos",
       "John Corbett",
       "Michael Constantine",
+      "Lainie Kazan",
       "Joey Fatone"
     ],
     "genres": [
@@ -1074,6 +1077,9 @@
     "cast": [
       "Robert Taylor",
       "Brian Donlevy"
+    ],
+    "genres": [
+      "Western"
     ]
   },
   {
@@ -1116,6 +1122,7 @@
     "cast": [
       "Bridget Fonda",
       "Jennifer Jason Leigh",
+      "Steven Weber",
       "Peter Friedman",
       "Stephen Tobolowsky"
     ],

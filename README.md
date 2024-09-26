@@ -157,7 +157,7 @@ First install nodejs and npm (node package manager).
 You should have node interepreter available in the command line.  
 Then use npm to install the following:
 
-    $npm install json-diff browserify browserify-css browserify-header wasmify
+    $npm install json-diff browserify browserify-css browserify-header wasmify uglify-js
 
 
 Build sources into a single javascript bundle file:
@@ -183,6 +183,10 @@ OR
 
     $cp ../3rdparty/jq-web/jq.asm.js.mem ../dist
 
+
+To minify the bundles you may use uglifyjs:
+
+    $uglifyjs ../dist/jsondiffgui-wasm-bundle.js --comments > ../dist/jsondiffgui-wasm-min-bundle.js
 
 
 # Future plans
